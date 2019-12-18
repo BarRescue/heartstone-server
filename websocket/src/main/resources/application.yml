@@ -10,4 +10,4 @@ spring:
     properties:
       hibernate.jdbc.lob.non_contextual-creation: true
 server:
-  port: 9999
+  port: 8095
