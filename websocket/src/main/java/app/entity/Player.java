@@ -2,6 +2,8 @@ package app.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import enums.MonsterType;
 import interfaces.ICard;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,7 +32,15 @@ public class Player implements Serializable {
     private String fullName;
 
     @Transient
-    @JsonIgnore
+    @Setter @Getter
+    private transient int hp;
+
+    @Transient
+    @Setter @Getter
+    private transient int mana;
+
+    @Transient
+    @Getter
     private transient List<Card> cards = new ArrayList<>();
 
     @OneToMany(
@@ -42,4 +52,33 @@ public class Player implements Serializable {
     @JsonBackReference
     @Getter
     private Set<GamePlayer> games = new HashSet<>();
+
+    public Player() {}
+
+    public Player(UUID id, String fullName) {
+        this.id = id;
+        this.fullName = fullName;
+    }
+
+    public void prepareForGame() {
+        this.hp = 30;
+        this.mana = 1;
+    }
+
+    public void giveCard(Card card) {
+        this.cards.add(card);
+    }
+
+    public Card removeCard(MonsterType monsterType) {
+        return cards.remove(cards.indexOf(cards.stream()
+            .filter(card -> card.getName().equals(monsterType.getName()))
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("Player does not have " + monsterType.getName() + " to be removed."))
+        ));
+    }
+
+    @JsonProperty
+    public int amountOfCards() {
+        return this.cards.size();
+    }
 }

@@ -34,4 +34,11 @@ public class GamePlayer implements Serializable {
     @JsonManagedReference
     @JsonUnwrapped
     private Player player;
+
+    public GamePlayer() {}
+
+    public GamePlayer(Game game, Player player) {
+        this.game = game;
+        this.player = player;
+    }
 }
