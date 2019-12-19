@@ -2,7 +2,6 @@ package app.services;
 
 import app.entity.User;
 import app.repository.UserRepository;
-import models.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

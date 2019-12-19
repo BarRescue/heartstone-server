@@ -1,20 +1,17 @@
 package app.entity;
 
+import app.models.enums.MonsterType;
+import app.models.interfaces.Card;
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import enums.MonsterType;
-import interfaces.ICard;
 import lombok.Getter;
 import lombok.Setter;
-import models.Card;
 import org.hibernate.annotations.Type;
 
 
 import javax.persistence.Entity;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.*;
 

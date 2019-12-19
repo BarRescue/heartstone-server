@@ -1,14 +1,13 @@
 package app.controllers;
 
 import app.controllers.enums.Response;
+import app.controllers.enums.Role;
 import app.entity.User;
 import app.helpers.PasswordHelper;
 import app.jwt.TokenProvider;
 import app.models.AuthorisationModel;
 import app.models.UserRegisterModel;
 import app.services.UserService;
-import enums.Role;
-import models.Player;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +20,6 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.validation.Valid;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import static org.springframework.http.ResponseEntity.ok;
 
@@ -41,6 +39,7 @@ public class AuthController {
         this.passwordHelper = passwordHelper;
     }
 
+    @CrossOrigin(origins = "http://localhost:4200")
     @PostMapping("/login")
     public ResponseEntity login(@Valid @RequestBody AuthorisationModel authModel) {
         User user = userService.findByEmail(authModel.getEmail())
@@ -52,7 +51,7 @@ public class AuthController {
 
         try {
             Map<Object, Object> model = new LinkedHashMap<>();
-            model.put("token", tokenProvider.createToken(user.getId(), user.getRole()));
+            model.put("token", tokenProvider.createToken(user.getId(), user.getRole(), user.getFirstName(), user.getLastName()));
             model.put("user", user);
             return ok(model);
         } catch (AuthenticationException e) {
@@ -60,6 +59,7 @@ public class AuthController {
         }
     }
 
+    @CrossOrigin(origins = "http://localhost:4200")
     @PostMapping("/register")
     public ResponseEntity register (@Valid @RequestBody UserRegisterModel registerModel) {
         if (userService.findByEmail(registerModel.getEmail()).isPresent()) {
@@ -78,7 +78,7 @@ public class AuthController {
             User createdUser = userService.createOrUpdate(user);
 
             Map<Object, Object> model = new LinkedHashMap<>();
-            model.put("token", tokenProvider.createToken(createdUser.getId(), createdUser.getRole()));
+            model.put("token", tokenProvider.createToken(createdUser.getId(), createdUser.getRole(), createdUser.getFirstName(), createdUser.getLastName()));
             model.put("user", createdUser);
             return ok(model);
         } catch (Exception ex) {

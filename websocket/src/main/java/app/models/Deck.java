@@ -1,6 +1,6 @@
-package models;
+package app.models;
 
-import interfaces.ICard;
+import app.models.interfaces.Card;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -8,9 +8,9 @@ import java.util.List;
 
 public class Deck {
     @Getter
-    private List<ICard> cards = new ArrayList<>();
+    private List<Card> cards = new ArrayList<>();
 
-    public void addCard(ICard card) {
+    public void addCard(Card card) {
         this.cards.add(card);
     }
 }

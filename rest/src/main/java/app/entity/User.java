@@ -1,13 +1,10 @@
 package app.entity;
 
+import app.controllers.enums.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import enums.Role;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -44,6 +41,7 @@ public class User implements Serializable, UserDetails {
     @NotBlank
     private String lastName;
 
+    @Getter
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Role role = Role.USER;

@@ -1,4 +1,4 @@
-package enums;
+package app.models.enums;
 
 public enum Rarity {
     FREE,

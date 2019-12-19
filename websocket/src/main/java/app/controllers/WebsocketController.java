@@ -23,7 +23,7 @@ public class WebsocketController {
 
     @MessageMapping("/lobby")
     @SendTo("/topic/lobby")
-    public String open(@Payload String name, SimpMessageHeaderAccessor headerAccessor) throws Exception {
+    public String open(@Payload String name, SimpMessageHeaderAccessor headerAccessor) {
         //TokenProvider tokenProvider = applicationContext.getBean(TokenProvider.class);
         return "testttt";
     }

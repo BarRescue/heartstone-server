@@ -1,27 +1,20 @@
-package models;
+package app.models;
 
-import enums.MonsterType;
-import enums.Rarity;
-import interfaces.ICard;
+import app.models.enums.MonsterType;
+import app.models.enums.Rarity;
+import app.models.interfaces.Card;
 import lombok.Getter;
 
-public class Card implements ICard {
-    @Getter
+@Getter
+public class Monster implements Card {
     private Rarity rarity;
-
-    @Getter
     private String name;
-
-    @Getter
     private int health;
-
-    @Getter
     private int damage;
-
-    @Getter
     private int mana;
+    private String path;
 
-    public Card(MonsterType monsterType) {
+    public Monster(MonsterType monsterType) {
         this.rarity = monsterType.getRarity();
         this.name = monsterType.getName();
         this.health = monsterType.getHealth();
