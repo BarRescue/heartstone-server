@@ -12,7 +12,6 @@ import org.springframework.messaging.support.GenericMessage;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 
-import javax.websocket.EncodeException;
 import java.io.IOException;
 
 @Service

@@ -7,7 +7,7 @@ import app.helpers.PasswordHelper;
 import app.jwt.TokenProvider;
 import app.models.AuthorisationModel;
 import app.models.UserRegisterModel;
-import app.services.UserService;
+import app.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
