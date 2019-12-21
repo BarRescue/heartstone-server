@@ -21,6 +21,7 @@ public class HttpHandshakeInterceptor implements HandshakeInterceptor {
 
             attributes.put("JWT", servletRequest.getServletRequest().getParameter("token"));
             attributes.put("sessionId", session.getId());
+            
 
         }
         return true;
