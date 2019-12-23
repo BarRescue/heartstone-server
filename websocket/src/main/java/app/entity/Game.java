@@ -23,9 +23,6 @@ public class Game implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @NotBlank
-    private String name;
-
     @NotNull
     private GameStatus gameStatus;
 
@@ -40,13 +37,9 @@ public class Game implements Serializable {
 
     public Game() {}
 
-    public Game(String name, Player... players) {
-        this.name = name;
+    public Game(Player player) {
         this.gameStatus = GameStatus.WAITING;
-
-        for(Player player : players){
-            this.players.add(new GamePlayer(this, player));
-        }
+        this.players.add(new GamePlayer(this, player));
     }
 
     public void addPlayer(Player player) {

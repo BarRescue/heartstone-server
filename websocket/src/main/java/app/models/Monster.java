@@ -20,5 +20,6 @@ public class Monster implements Card {
         this.health = monsterType.getHealth();
         this.damage = monsterType.getDamage();
         this.mana = monsterType.getMana();
+        this.path = "/images/" + monsterType.getName() + ".jpg";
     }
 }

@@ -1,8 +1,11 @@
 package app.entity;
 
+import app.models.Deck;
+import app.models.Hand;
 import app.models.enums.MonsterType;
 import app.models.interfaces.Card;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,9 +22,12 @@ import java.util.*;
 @Table(name = "player")
 @Getter @Setter
 public class Player implements Serializable {
+    @JsonIgnore
+    private static final int AMOUNT_OF_CARDS_IN_HAND = 10;
+
     @Id
     @Type(type = "uuid-char")
-    @GeneratedValue(strategy =  GenerationType.AUTO)
+    @Setter
     private UUID id;
 
     @NotBlank
@@ -36,15 +42,21 @@ public class Player implements Serializable {
     @Setter @Getter
     private transient int mana;
 
+    @JsonIgnore
     @Transient
     @Getter
-    private transient List<Card> cards = new ArrayList<>();
+    private transient Deck deck;
+
+    @JsonIgnore
+    @Transient
+    @Getter
+    private transient Hand hand;
 
     @OneToMany(
-            fetch = FetchType.EAGER,
-            mappedBy = "player",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
+        fetch = FetchType.EAGER,
+        mappedBy = "player",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
     )
     @JsonBackReference
     @Getter
@@ -60,22 +72,13 @@ public class Player implements Serializable {
     public void prepareForGame() {
         this.hp = 30;
         this.mana = 1;
-    }
+        this.hand = new Hand();
+        this.deck = new Deck();
 
-    public void giveCard(Card card) {
-        this.cards.add(card);
-    }
+        this.deck.prepare();
 
-    public Card removeCard(MonsterType monsterType) {
-        return cards.remove(cards.indexOf(cards.stream()
-            .filter(card -> card.getName().equals(monsterType.getName()))
-            .findFirst()
-            .orElseThrow(() -> new IllegalArgumentException("Player does not have " + monsterType.getName() + " to be removed."))
-        ));
-    }
-
-    @JsonProperty
-    public int amountOfCards() {
-        return this.cards.size();
+        for(int i = 0; i < AMOUNT_OF_CARDS_IN_HAND; i++) {
+            this.hand.addCard(this.deck.takeCard(i));
+        }
     }
 }
