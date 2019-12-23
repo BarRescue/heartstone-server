@@ -23,6 +23,10 @@ public class GameService {
         return this.gameRepository.findByStatus(GameStatus.WAITING);
     }
 
+    public List<Game> getStartedGame() {
+        return this.gameRepository.findByStatus(GameStatus.STARTED);
+    }
+
     public Game createOrUpdate(Game game) {
         return this.gameRepository.save(game);
     }

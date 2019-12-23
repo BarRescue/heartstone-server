@@ -34,6 +34,10 @@ public class Player implements Serializable {
     @Setter
     private String fullName;
 
+    @JsonProperty
+    @Setter
+    private int gamesWon;
+
     @Transient
     @Setter @Getter
     private transient int hp;
@@ -64,9 +68,10 @@ public class Player implements Serializable {
 
     public Player() {}
 
-    public Player(UUID id, String fullName) {
+    public Player(UUID id, String fullName, int gamesWon) {
         this.id = id;
         this.fullName = fullName;
+        this.gamesWon = gamesWon;
     }
 
     public void prepareForGame() {

@@ -35,7 +35,7 @@ public class Board {
         prepareCards();
     }
 
-    public void prepareCards() {
+    private void prepareCards() {
         for(Player player : this.playerManager.getPlayers()) {
             player.prepareForGame();
         }

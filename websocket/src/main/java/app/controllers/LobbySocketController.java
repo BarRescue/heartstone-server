@@ -8,6 +8,8 @@ import app.logic.*;
 import app.models.User;
 import app.models.interfaces.Card;
 import app.models.payloads.Action;
+import app.models.responses.DefaultResponse;
+import app.models.states.GameStartState;
 import app.models.states.GameState;
 import app.models.states.PrivateGameState;
 import app.models.states.SearchingState;
@@ -40,8 +42,6 @@ public class LobbySocketController{
     private PlayerLogic playerLogic;
     private LobbyLogic lobbyLogic;
 
-    private static HashMap<UUID, GameState> games = new HashMap<>();
-
     @Autowired
     public LobbySocketController(SimpMessagingTemplate messagingTemplate, TokenProvider tokenProvider, PlayerLogic playerLogic, LobbyLogic lobbyLogic) {
         this.message = messagingTemplate;
@@ -55,7 +55,7 @@ public class LobbySocketController{
         ObjectMapper objectMapper = new ObjectMapper();
 
         try {
-            Authentication auth = getAuthOnToken(headerAccessor.getSessionAttributes().get("JWT").toString());
+            Authentication auth = this.playerLogic.getAuthOnToken(headerAccessor.getSessionAttributes().get("JWT").toString());
 
             if(auth != null) {
                 // Get action from Payload
@@ -65,7 +65,7 @@ public class LobbySocketController{
                 User user = (User) auth.getPrincipal();
 
                 // Create or get player
-                Player player = this.playerLogic.CreateOrUpdate(new Player(user.getId(), user.getUsername()));
+                Player player = this.playerLogic.CreateOrUpdate(new Player(user.getId(), user.getUsername(), this.playerLogic.getGamesWon(user.getId())));
 
                 if(action.getActionType().equals("search_game")) {
                     this.joinOrStartGame(player);
@@ -78,45 +78,33 @@ public class LobbySocketController{
     }
 
     private void joinOrStartGame(Player player) {
-        Game foundGame = this.lobbyLogic.joinOrCreateGame(player);
         ObjectMapper objectMapper = new ObjectMapper();
+        Game foundGame = this.lobbyLogic.joinOrCreateGame(player);
 
-        if(foundGame.getPlayers().size() == 1) {
+        if (foundGame.getPlayers().size() == 1) {
             try {
                 message.convertAndSendToUser(player.getFullName(), "/topic/search", objectMapper.writeValueAsString(new SearchingState()));
-            } catch(IOException e) {
+            } catch (IOException e) {
                 logger.error("Could not send message to user {} with error {}", player.getFullName(), e);
                 throw new IllegalArgumentException("Could not send message to user");
             }
         }
 
-        if(foundGame.getPlayers().size() == 2) {
-            if(!this.lobbyLogic.startGame(foundGame)) {
+        if (foundGame.getPlayers().size() == 2) {
+            if (!this.lobbyLogic.startGame(foundGame)) {
                 throw new IllegalArgumentException("Game could not be started");
             }
 
             List<Player> players = foundGame.getPlayers().stream().map(GamePlayer::getPlayer).collect(Collectors.toList());
-            games.put(foundGame.getId(), new GameState(new Board(new PlayerManager(players), "Welcome to the game!")));
 
-            for(Player p : players) {
+            for (Player p : players) {
                 try {
-                    message.convertAndSendToUser(p.getFullName(), "/topic/search", objectMapper.writeValueAsString(games.get(foundGame.getId())));
-                    message.convertAndSendToUser(p.getFullName(), "/topic/search", objectMapper.writeValueAsString(new PrivateGameState(p.getDeck(), p.getHand())));
-                } catch(IOException e) {
+                    message.convertAndSendToUser(p.getFullName(), "/topic/search", objectMapper.writeValueAsString(new GameStartState(foundGame.getId())));
+                } catch (IOException e) {
                     logger.error("Could not send message to user {} with error {}", p.getFullName(), e);
                     throw new IllegalArgumentException("Could not send message to user");
                 }
             }
         }
-    }
-
-    private Authentication getAuthOnToken(String jwt) {
-        String token = this.tokenProvider.resolveToken("Bearer " + jwt);
-
-        if(token != null && this.tokenProvider.validateToken(token)) {
-            return this.tokenProvider.getAuthentication(token);
-        }
-
-        return null;
     }
 }

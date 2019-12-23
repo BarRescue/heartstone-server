@@ -24,4 +24,9 @@ public class PlayerService {
     public Player createOrUpdate(Player player) {
         return this.playerRepository.save(player);
     }
+
+    public int getGamesWonById(UUID id) {
+        Optional<Player> player = this.playerRepository.findById(id);
+        return player.map(Player::getGamesWon).orElse(0);
+    }
 }

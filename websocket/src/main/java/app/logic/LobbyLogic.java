@@ -5,6 +5,7 @@ import app.entity.GamePlayer;
 import app.entity.Player;
 import app.entity.enums.GameStatus;
 import app.service.GameService;
+import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import java.util.Optional;
@@ -20,8 +21,12 @@ public class LobbyLogic {
 
     private Game getWaitingGame(Player player) {
         Optional<Game> game = this.gameService.getWaitingGame().stream().filter(g -> !g.containsPlayer(player)).findFirst();
-
         return game.orElseGet(() -> this.gameService.createOrUpdate(new Game(player)));
+    }
+
+    public Game getStartedGame(Player player) {
+        Optional<Game> game = this.gameService.getStartedGame().stream().filter(g -> g.containsPlayer(player)).findFirst();
+        return game.orElse(null);
     }
 
     public Game joinOrCreateGame(Player player) {
