@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Component
 public class GameLogic {
@@ -32,5 +33,9 @@ public class GameLogic {
         // Update Player
         actualPlayer.setGamesWon(actualPlayer.getGamesWon() + 1);
         this.playerService.createOrUpdate(actualPlayer);
+    }
+
+    public Optional<Game> findById(UUID id) {
+        return this.gameService.findGameByID(id);
     }
 }

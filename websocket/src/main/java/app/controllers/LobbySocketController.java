@@ -16,6 +16,7 @@ import app.models.states.SearchingState;
 import app.service.GameService;
 import app.service.PlayerService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import javassist.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,13 +72,13 @@ public class LobbySocketController{
                     this.joinOrStartGame(player);
                 }
             }
-        } catch(IOException e) {
+        } catch(IOException | NotFoundException e) {
             message.convertAndSendToUser(headerAccessor.getUser().getName(), "/topic/search", "Cannot convert given string an JSON object!");
             logger.error("Cannot convert given string as JSON object: {}", actionType);
         }
     }
 
-    private void joinOrStartGame(Player player) {
+    private void joinOrStartGame(Player player) throws NotFoundException {
         ObjectMapper objectMapper = new ObjectMapper();
         Game foundGame = this.lobbyLogic.joinOrCreateGame(player);
 
@@ -91,15 +92,17 @@ public class LobbySocketController{
         }
 
         if (foundGame.getPlayers().size() == 2) {
-            if (!this.lobbyLogic.startGame(foundGame)) {
+            Game gameToStart = this.lobbyLogic.findById(foundGame.getId()).orElseThrow(() -> new NotFoundException("Game not found"));
+
+            if (!this.lobbyLogic.startGame(gameToStart)) {
                 throw new IllegalArgumentException("Game could not be started");
             }
 
-            List<Player> players = foundGame.getPlayers().stream().map(GamePlayer::getPlayer).collect(Collectors.toList());
+            List<Player> players = gameToStart.getPlayers().stream().map(GamePlayer::getPlayer).collect(Collectors.toList());
 
             for (Player p : players) {
                 try {
-                    message.convertAndSendToUser(p.getFullName(), "/topic/search", objectMapper.writeValueAsString(new GameStartState(foundGame.getId())));
+                    message.convertAndSendToUser(p.getFullName(), "/topic/search", objectMapper.writeValueAsString(new GameStartState(gameToStart.getId())));
                 } catch (IOException e) {
                     logger.error("Could not send message to user {} with error {}", p.getFullName(), e);
                     throw new IllegalArgumentException("Could not send message to user");

@@ -27,6 +27,10 @@ public class PlayerLogic {
         return this.playerService.createOrUpdate(player);
     }
 
+    public Optional<Player> findById(UUID id) {
+        return this.playerService.findByID(id);
+    }
+
     public Authentication getAuthOnToken(String JWT) {
         String token = this.tokenProvider.resolveToken("Bearer " + JWT);
 

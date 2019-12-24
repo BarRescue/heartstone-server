@@ -2,11 +2,11 @@ package app.logic;
 
 import app.entity.Player;
 import app.models.Hand;
-import app.models.interfaces.Card;
 import lombok.Getter;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Getter
 public class PlayerManager {
@@ -25,5 +25,9 @@ public class PlayerManager {
                 .filter(p -> p.getId() == player.getId())
                 .findFirst()
                 .get().getHand();
+    }
+
+    public Optional<Player> getPlayer(Player player) {
+        return this.players.stream().filter(p -> p.getId() == player.getId()).findAny();
     }
 }

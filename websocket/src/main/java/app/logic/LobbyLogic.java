@@ -9,6 +9,7 @@ import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import java.util.Optional;
+import java.util.UUID;
 
 @Component
 public class LobbyLogic {
@@ -35,20 +36,21 @@ public class LobbyLogic {
         if(!foundGame.containsPlayer(player)) {
             foundGame.addPlayer(player);
             this.updateGame(foundGame);
+
+            return foundGame;
         }
 
         return foundGame;
     }
 
+    public Optional<Game> findById(UUID id) {
+        return this.gameService.findGameByID(id);
+    }
+
     public boolean startGame(Game game) {
         if(game.getPlayers().size() == 2 && game.getGameStatus() == GameStatus.WAITING) {
             game.setGameStatus(GameStatus.STARTED);
-            this.gameService.createOrUpdate(game);
-
-            for(GamePlayer player : game.getPlayers()) {
-                player.getPlayer().prepareForGame();
-            }
-
+            this.updateGame(game);
             return true;
         }
 

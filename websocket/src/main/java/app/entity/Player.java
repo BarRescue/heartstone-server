@@ -1,6 +1,7 @@
 package app.entity;
 
 import app.models.Deck;
+import app.models.Field;
 import app.models.Hand;
 import app.models.enums.MonsterType;
 import app.models.interfaces.Card;
@@ -56,6 +57,11 @@ public class Player implements Serializable {
     @Getter
     private transient Hand hand;
 
+    @Transient
+    @Setter
+    @Getter
+    private transient Field field;
+
     @OneToMany(
         fetch = FetchType.EAGER,
         mappedBy = "player",
@@ -79,6 +85,7 @@ public class Player implements Serializable {
         this.mana = 1;
         this.hand = new Hand();
         this.deck = new Deck();
+        this.field = new Field();
 
         this.deck.prepare();
 
