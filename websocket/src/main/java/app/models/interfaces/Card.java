@@ -2,6 +2,8 @@ package app.models.interfaces;
 
 import app.models.enums.Rarity;
 
+import java.net.URI;
+
 public interface Card {
     String getName();
     int getMana();

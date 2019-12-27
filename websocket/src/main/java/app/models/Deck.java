@@ -16,10 +16,10 @@ public class Deck {
     @Setter
     private List<Card> cards = new ArrayList<>();
 
-    public Card takeCard(int index) {
+    public Card takeCard() {
         if(!this.cards.isEmpty()) {
-            Card monster = this.cards.get(index);
-            this.cards.remove(index);
+            Card monster = this.cards.get(0);
+            this.cards.remove(monster);
 
             return monster;
         }

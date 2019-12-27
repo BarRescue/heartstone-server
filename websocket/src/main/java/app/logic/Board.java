@@ -2,6 +2,7 @@ package app.logic;
 
 import app.entity.Player;
 import app.models.DiscardPile;
+import app.models.interfaces.Card;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import lombok.Getter;
@@ -39,5 +40,19 @@ public class Board {
         for(Player player : this.playerManager.getPlayers()) {
             player.prepareForGame();
         }
+    }
+
+    public void handleTakeCard() {
+        if(playerManager.getCurrentPlayer().getHand().amountOfCards() != 10) {
+            Card cardDrawn = playerManager.getCurrentPlayer().getDeck().takeCard();
+            playerManager.getCurrentPlayer().getHand().addCard(cardDrawn);
+            playerManager.getCurrentPlayer().setAmountOfCardsInHand(playerManager.getCurrentPlayer().getHand().amountOfCards());
+        } else {
+            privateMessage = "You already have 10 cards in your hand, therefore you cant take another card.";
+        }
+    }
+
+    public void handleEndTurn() {
+
     }
 }

@@ -4,6 +4,13 @@ import app.models.enums.MonsterType;
 import app.models.enums.Rarity;
 import app.models.interfaces.Card;
 import lombok.Getter;
+import org.springframework.core.io.Resource;
+
+import javax.persistence.Convert;
+import java.io.File;
+import java.net.URI;
+import java.net.URL;
+import java.nio.file.Paths;
 
 @Getter
 public class Monster implements Card {
@@ -20,6 +27,8 @@ public class Monster implements Card {
         this.health = monsterType.getHealth();
         this.damage = monsterType.getDamage();
         this.mana = monsterType.getMana();
-        this.path = "/images/" + monsterType.getName() + ".jpg";
+        this.path = monsterType.getName().toLowerCase() + ".png";
+
+        String file = new File("resources/images/" + monsterType.getName().toLowerCase() + ".png").getPath();
     }
 }

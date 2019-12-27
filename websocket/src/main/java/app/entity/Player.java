@@ -39,6 +39,10 @@ public class Player implements Serializable {
     @Setter
     private int gamesWon;
 
+    @JsonProperty
+    @Setter
+    private int amountOfCardsInHand;
+
     @Transient
     @Setter @Getter
     private transient int hp;
@@ -89,8 +93,6 @@ public class Player implements Serializable {
 
         this.deck.prepare();
 
-        for(int i = 0; i < AMOUNT_OF_CARDS_IN_HAND; i++) {
-            this.hand.addCard(this.deck.takeCard(i));
-        }
+        this.amountOfCardsInHand = this.hand.amountOfCards();
     }
 }
