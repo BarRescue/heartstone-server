@@ -14,9 +14,6 @@ public class PlayerManager {
 
     private Player currentPlayer;
 
-    @Setter
-    private int roundNumber;
-
     public PlayerManager(List<Player> players) {
         this.players = players;
         this.currentPlayer = players.get(0);
@@ -24,16 +21,19 @@ public class PlayerManager {
 
     public void getNextPlayer() {
         int currentPlayerIndex = players.indexOf(currentPlayer);
+        this.currentPlayer.setRoundNumber(this.currentPlayer.getRoundNumber() + 1);
 
         if(currentPlayerIndex == players.size() - 1) {
             this.currentPlayer = players.get(0);
+            this.addManaToPlayer(players.get(1));
         } else {
             this.currentPlayer = players.get(1);
+            this.addManaToPlayer(players.get(0));
         }
+    }
 
-        this.roundNumber++;
-
-        
+    private void addManaToPlayer(Player player) {
+        player.setMana(player.getRoundNumber() >= 8 ? player.getMana() + 8 : player.getMana() + player.getRoundNumber());
     }
 
     public Optional<Player> getPlayer(Player player) {

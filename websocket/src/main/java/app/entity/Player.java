@@ -41,7 +41,8 @@ public class Player implements Serializable {
 
     @JsonProperty
     @Setter
-    private int amountOfCardsInHand;
+    @Transient
+    private transient int amountOfCardsInHand;
 
     @Transient
     @Setter @Getter
@@ -65,6 +66,11 @@ public class Player implements Serializable {
     @Setter
     @Getter
     private transient Field field;
+
+    @JsonIgnore
+    @Setter
+    @Getter
+    private transient int roundNumber;
 
     @OneToMany(
         fetch = FetchType.EAGER,

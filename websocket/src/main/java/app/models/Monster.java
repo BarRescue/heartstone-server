@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 
 @Getter
 public class Monster implements Card {
+    private MonsterType monsterType;
     private Rarity rarity;
     private String name;
     private int health;
@@ -22,13 +23,14 @@ public class Monster implements Card {
     private String path;
 
     public Monster(MonsterType monsterType) {
+        this.monsterType = monsterType;
         this.rarity = monsterType.getRarity();
         this.name = monsterType.getName();
         this.health = monsterType.getHealth();
         this.damage = monsterType.getDamage();
         this.mana = monsterType.getMana();
-        this.path = monsterType.getName().toLowerCase() + ".png";
+        this.path = monsterType.getName().toLowerCase() + ".jpg";
 
-        String file = new File("resources/images/" + monsterType.getName().toLowerCase() + ".png").getPath();
+        String file = new File("resources/images/" + monsterType.getName() + ".jpg").getPath();
     }
 }
