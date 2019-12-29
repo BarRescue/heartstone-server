@@ -11,6 +11,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
@@ -20,6 +22,7 @@ import java.util.List;
 @Getter
 @Setter
 public class Action {
+    Logger logger = LoggerFactory.getLogger(Action.class);
     private static ObjectMapper mapper = new ObjectMapper();
 
     @Getter
@@ -35,7 +38,11 @@ public class Action {
         List<Card> cards = new ArrayList<>();
 
         payload.get("cards").forEach(jsonNode -> {
-            cards.add(new Monster(MonsterType.valueOf(jsonNode.textValue())));
+            try {
+                cards.add(new Monster(MonsterType.valueOf(jsonNode.textValue())));
+            } catch(IllegalArgumentException e) {
+                logger.error("Card {} not found with error: {}", jsonNode.textValue(), e);
+            }
         });
 
         return cards;

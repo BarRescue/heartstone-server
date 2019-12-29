@@ -68,6 +68,7 @@ public class Player implements Serializable {
     private transient Field field;
 
     @JsonIgnore
+    @Transient
     @Setter
     @Getter
     private transient int roundNumber;
