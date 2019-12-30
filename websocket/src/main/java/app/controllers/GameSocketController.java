@@ -67,6 +67,9 @@ public class GameSocketController {
             case "play_card":
                 this.handlePlayCard(action, id, token);
                 break;
+            case "attack":
+                this.handleAttack(action, id, token);
+                break;
         }
     }
 
@@ -178,6 +181,7 @@ public class GameSocketController {
 
             if (!games.get(foundGame.getId()).getBoard().getPlayerManager().getCurrentPlayer().getId().equals(player.get().getId())) {
                 message.convertAndSendToUser(player.get().getFullName(), "/topic/game", objectMapper.writeValueAsString(new DefaultResponse("It's not your turn")));
+                games.get(foundGame.getId()).getBoard().setPrivateMessage("");
                 return;
             }
 
@@ -187,10 +191,46 @@ public class GameSocketController {
 
             if(gamePlayer.isPresent()) {
                 message.convertAndSendToUser(gamePlayer.get().getFullName(), "/topic/game", objectMapper.writeValueAsString(new DefaultResponse(games.get(foundGame.getId()).getBoard().getPrivateMessage())));
+                games.get(foundGame.getId()).getBoard().setPrivateMessage("");
                 message.convertAndSendToUser(gamePlayer.get().getFullName(), "/topic/game", objectMapper.writeValueAsString(new PrivateGameState(gamePlayer.get().getDeck(), gamePlayer.get().getHand())));
             }
 
             for(Player p : games.get(foundGame.getId()).getBoard().getPlayerManager().getPlayers()) {
+                message.convertAndSendToUser(p.getFullName(), "/topic/game", objectMapper.writeValueAsString(games.get(foundGame.getId())));
+            }
+        }
+    }
+
+    private void handleAttack(Action action, String id, String token) throws JsonProcessingException, NotFoundException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        Game foundGame = this.gameLogic.findById(UUID.fromString(id)).orElseThrow(() -> new NotFoundException("Game not found"));
+
+        Authentication auth = this.playerLogic.getAuthOnToken(token);
+
+        if(auth != null) {
+            User user = (User) auth.getPrincipal();
+            Optional<Player> player = this.playerLogic.findById(user.getId());
+
+            if (player.isEmpty()) throw new NotFoundException("couldn't find Player with id.");
+
+            if (!foundGame.containsPlayer(player.get())) throw new NotFoundException("Player is not in game");
+
+            if (!games.get(foundGame.getId()).getBoard().getPlayerManager().getCurrentPlayer().getId().equals(player.get().getId())) {
+                message.convertAndSendToUser(player.get().getFullName(), "/topic/game", objectMapper.writeValueAsString(new DefaultResponse("It's not your turn")));
+                games.get(foundGame.getId()).getBoard().setPrivateMessage("");
+                return;
+            }
+
+            games.get(foundGame.getId()).getBoard().handleAttack(action);
+
+            Optional<Player> gamePlayer = games.get(foundGame.getId()).getBoard().getPlayerManager().getPlayers().stream().filter(p -> p.getId().equals(player.get().getId())).findFirst();
+
+            if (gamePlayer.isPresent()) {
+                message.convertAndSendToUser(gamePlayer.get().getFullName(), "/topic/game", objectMapper.writeValueAsString(new DefaultResponse(games.get(foundGame.getId()).getBoard().getPrivateMessage())));
+                games.get(foundGame.getId()).getBoard().setPrivateMessage("");
+            }
+
+            for (Player p : games.get(foundGame.getId()).getBoard().getPlayerManager().getPlayers()) {
                 message.convertAndSendToUser(p.getFullName(), "/topic/game", objectMapper.writeValueAsString(games.get(foundGame.getId())));
             }
         }

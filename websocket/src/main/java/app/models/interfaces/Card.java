@@ -11,4 +11,9 @@ public interface Card {
     int getDamage();
     Rarity getRarity();
     String getPath();
+    boolean getHasAttacked();
+
+    void setHealth(int health);
+    void setHasAttacked(boolean status);
+    boolean isDead();
 }

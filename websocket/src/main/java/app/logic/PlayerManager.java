@@ -1,6 +1,7 @@
 package app.logic;
 
 import app.entity.Player;
+import app.models.interfaces.Card;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,6 +23,10 @@ public class PlayerManager {
     public void getNextPlayer() {
         int currentPlayerIndex = players.indexOf(currentPlayer);
         this.currentPlayer.setRoundNumber(this.currentPlayer.getRoundNumber() + 1);
+
+        for(Card card : this.currentPlayer.getField().getCards()) {
+            card.setHasAttacked(false);
+        }
 
         if(currentPlayerIndex == players.size() - 1) {
             this.currentPlayer = players.get(0);

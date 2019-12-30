@@ -4,6 +4,7 @@ import app.models.enums.MonsterType;
 import app.models.enums.Rarity;
 import app.models.interfaces.Card;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.core.io.Resource;
 
 import javax.persistence.Convert;
@@ -13,6 +14,7 @@ import java.net.URL;
 import java.nio.file.Paths;
 
 @Getter
+@Setter
 public class Monster implements Card {
     private MonsterType monsterType;
     private Rarity rarity;
@@ -21,6 +23,7 @@ public class Monster implements Card {
     private int damage;
     private int mana;
     private String path;
+    private boolean hasAttacked = false;
 
     public Monster(MonsterType monsterType) {
         this.monsterType = monsterType;
@@ -32,5 +35,20 @@ public class Monster implements Card {
         this.path = monsterType.getName().toLowerCase() + ".jpg";
 
         String file = new File("resources/images/" + monsterType.getName() + ".jpg").getPath();
+    }
+
+    @Override
+    public boolean isDead() {
+        return this.health <= 0;
+    }
+
+    @Override
+    public void setHasAttacked(boolean status) {
+        this.hasAttacked = status;
+    }
+
+    @Override
+    public boolean getHasAttacked() {
+        return this.hasAttacked;
     }
 }

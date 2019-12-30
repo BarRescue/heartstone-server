@@ -47,4 +47,19 @@ public class Action {
 
         return cards;
     }
+
+    @JsonIgnore
+    public List<Card> getEnemyCardsFromPayload() {
+        List<Card> cards = new ArrayList<>();
+
+        payload.get("enemyCard").forEach(jsonNode -> {
+            try {
+                cards.add(new Monster(MonsterType.valueOf(jsonNode.textValue())));
+            } catch(IllegalArgumentException e) {
+                logger.error("Card {} not found with error: {}", jsonNode.textValue(), e);
+            }
+        });
+
+        return cards;
+    }
 }
