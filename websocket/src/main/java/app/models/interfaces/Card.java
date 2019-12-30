@@ -2,7 +2,7 @@ package app.models.interfaces;
 
 import app.models.enums.Rarity;
 
-import java.net.URI;
+import java.util.UUID;
 
 public interface Card {
     String getName();
@@ -12,6 +12,7 @@ public interface Card {
     Rarity getRarity();
     String getPath();
     boolean getHasAttacked();
+    UUID getId();
 
     void setHealth(int health);
     void setHasAttacked(boolean status);

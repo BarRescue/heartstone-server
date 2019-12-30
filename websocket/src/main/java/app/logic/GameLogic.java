@@ -23,16 +23,14 @@ public class GameLogic {
         this.playerService = playerService;
     }
 
-    public void endGame(GamePlayer player, Game game) {
-        Player actualPlayer = player.getPlayer();
-
+    public void endGame(Player wonPlayer, Game game) {
         // Update Game
         game.setGameStatus(GameStatus.ENDED);
         this.gameService.createOrUpdate(game);
 
         // Update Player
-        actualPlayer.setGamesWon(actualPlayer.getGamesWon() + 1);
-        this.playerService.createOrUpdate(actualPlayer);
+        wonPlayer.setGamesWon(wonPlayer.getGamesWon() + 1);
+        this.playerService.createOrUpdate(wonPlayer);
     }
 
     public Optional<Game> findById(UUID id) {

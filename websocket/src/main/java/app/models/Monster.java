@@ -12,11 +12,12 @@ import java.io.File;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.util.UUID;
 
 @Getter
 @Setter
 public class Monster implements Card {
-    private MonsterType monsterType;
+    private UUID id;
     private Rarity rarity;
     private String name;
     private int health;
@@ -26,7 +27,7 @@ public class Monster implements Card {
     private boolean hasAttacked = false;
 
     public Monster(MonsterType monsterType) {
-        this.monsterType = monsterType;
+        this.id = UUID.randomUUID();
         this.rarity = monsterType.getRarity();
         this.name = monsterType.getName();
         this.health = monsterType.getHealth();
@@ -34,7 +35,7 @@ public class Monster implements Card {
         this.mana = monsterType.getMana();
         this.path = monsterType.getName().toLowerCase() + ".jpg";
 
-        String file = new File("resources/images/" + monsterType.getName() + ".jpg").getPath();
+        new File("resources/images/" + monsterType.getName() + ".jpg");
     }
 
     @Override

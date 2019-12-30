@@ -3,6 +3,7 @@ package app.controllers;
 import app.entity.Game;
 import app.entity.GamePlayer;
 import app.entity.Player;
+import app.entity.enums.GameStatus;
 import app.jwt.TokenProvider;
 import app.logic.*;
 import app.models.User;
@@ -53,23 +54,26 @@ public class GameSocketController {
     public void open(@Payload Action action, SimpMessageHeaderAccessor headerAccessor, @DestinationVariable String id) throws IOException, NotFoundException {
         ObjectMapper objectMapper = new ObjectMapper();
         String token = headerAccessor.getSessionAttributes().get("JWT").toString();
+        Optional<Game> foundGame = gameLogic.findById(UUID.fromString(id));
 
-        switch(action.getActionType()) {
-            case "game_init":
-                this.prepareGame(id, token);
-                break;
-            case "take_card":
-                this.handleTakeCard(id, token);
-                break;
-            case "end_turn":
-                this.handleEndTurn(id, token);
-                break;
-            case "play_card":
-                this.handlePlayCard(action, id, token);
-                break;
-            case "attack":
-                this.handleAttack(action, id, token);
-                break;
+        if(foundGame.isPresent() && foundGame.get().getGameStatus() == GameStatus.STARTED) {
+            switch (action.getActionType()) {
+                case "game_init":
+                    this.prepareGame(id, token);
+                    break;
+                case "take_card":
+                    this.handleTakeCard(id, token);
+                    break;
+                case "end_turn":
+                    this.handleEndTurn(id, token);
+                    break;
+                case "play_card":
+                    this.handlePlayCard(action, id, token);
+                    break;
+                case "attack":
+                    this.handleAttack(action, id, token);
+                    break;
+            }
         }
     }
 
@@ -221,7 +225,7 @@ public class GameSocketController {
                 return;
             }
 
-            games.get(foundGame.getId()).getBoard().handleAttack(action);
+            games.get(foundGame.getId()).getBoard().handleAttack(action, id, this.gameLogic);
 
             Optional<Player> gamePlayer = games.get(foundGame.getId()).getBoard().getPlayerManager().getPlayers().stream().filter(p -> p.getId().equals(player.get().getId())).findFirst();
 
