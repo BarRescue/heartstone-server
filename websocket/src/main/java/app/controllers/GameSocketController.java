@@ -179,9 +179,9 @@ public class GameSocketController {
             User user = (User) auth.getPrincipal();
             Optional<Player> player = this.playerLogic.findById(user.getId());
 
-            if(player.isEmpty() || game.containsPlayer(player.get())) {
-                logger.error("couldn't find Player with id or play isn't in game");
-                throw new NotFoundException("couldn't find Player with id or play isn't in game");
+            if(player.isEmpty() || !game.containsPlayer(player.get())) {
+                logger.error("couldn't find Player with id or player isn't in game");
+                throw new NotFoundException("couldn't find Player with id or player isn't in game");
             }
 
             return player.get();

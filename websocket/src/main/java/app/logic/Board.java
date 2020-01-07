@@ -40,21 +40,13 @@ public class Board {
         this.playerManager = playerManager;
         //this.actionManager = new ActionManager(this);
         this.message = message;
-
-        prepareCards();
-    }
-
-    private void prepareCards() {
-        for(Player player : this.playerManager.getPlayers()) {
-            player.prepareForGame();
-        }
     }
 
     public boolean handleTakeCard() {
-        if(playerManager.getCurrentPlayer().getHand().amountOfCards() != 10) {
-            Card cardDrawn = playerManager.getCurrentPlayer().getDeck().takeCard();
-            playerManager.getCurrentPlayer().getHand().addCard(cardDrawn);
-            playerManager.getCurrentPlayer().setAmountOfCardsInHand(playerManager.getCurrentPlayer().getHand().amountOfCards());
+        Player currentPlayer = playerManager.getCurrentPlayer();
+
+        if(currentPlayer.getHand().amountOfCards() != 10) {
+            currentPlayer.takeCard();
         } else {
             privateMessage = "You already have 10 cards in your hand, therefore you cant take another card.";
             return false;
