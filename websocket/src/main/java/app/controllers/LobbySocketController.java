@@ -6,15 +6,9 @@ import app.entity.Player;
 import app.jwt.TokenProvider;
 import app.logic.*;
 import app.models.User;
-import app.models.interfaces.Card;
 import app.models.payloads.Action;
-import app.models.responses.DefaultResponse;
 import app.models.states.GameStartState;
-import app.models.states.GameState;
-import app.models.states.PrivateGameState;
 import app.models.states.SearchingState;
-import app.service.GameService;
-import app.service.PlayerService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javassist.NotFoundException;
 import org.slf4j.Logger;
@@ -28,10 +22,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Controller
@@ -66,7 +57,7 @@ public class LobbySocketController{
                 User user = (User) auth.getPrincipal();
 
                 // Create or get player
-                Player player = this.playerLogic.CreateOrUpdate(new Player(user.getId(), user.getUsername(), this.playerLogic.getGamesWon(user.getId())));
+                Player player = this.playerLogic.createOrUpdate(new Player(user.getId(), user.getUsername(), this.playerLogic.getGamesWon(user.getId())));
 
                 if(action.getActionType().equals("search_game")) {
                     this.joinOrStartGame(player);

@@ -24,9 +24,7 @@ public class PlayerManager {
         int currentPlayerIndex = players.indexOf(currentPlayer);
         this.currentPlayer.setRoundNumber(this.currentPlayer.getRoundNumber() + 1);
 
-        for(Card card : this.currentPlayer.getField().getCards()) {
-            card.setHasAttacked(false);
-        }
+        resetPlayerCards(this.currentPlayer);
 
         if(currentPlayerIndex == players.size() - 1) {
             this.currentPlayer = players.get(0);
@@ -37,11 +35,17 @@ public class PlayerManager {
         }
     }
 
+    private void resetPlayerCards(Player player) {
+        for(Card card : player.getField().getCards()) {
+            card.setHasAttacked(false);
+        }
+    }
+
     private void addManaToPlayer(Player player) {
         player.setMana(player.getRoundNumber() >= 8 ? player.getMana() + 8 : player.getMana() + player.getRoundNumber());
     }
 
-    public Optional<Player> getPlayer(Player player) {
-        return this.players.stream().filter(p -> p.getId() == player.getId()).findAny();
+    public boolean isPlayerTurn(Player player) {
+        return this.currentPlayer.getId().equals(player.getId());
     }
 }

@@ -68,31 +68,6 @@ public class OnSubscribeListener {
         }
     }
 
-    /*@EventListener
-    public void handleSessionUnsubscribeEvent(SessionUnsubscribeEvent event) {
-        String simpDestination = (String) event.getMessage().getHeaders().get("simpDestination");
-        StompHeaderAccessor sha = StompHeaderAccessor.wrap(event.getMessage());
-        ObjectMapper mapper = new ObjectMapper();
-
-        if("/topic/game".equals(simpDestination)) {
-            Authentication auth = this.playerLogic.getAuthOnToken(sha.getSessionAttributes().get("JWT").toString());
-
-            if(auth != null) {
-                User user = (User) auth.getPrincipal();
-                Game startedGame = this.lobbyLogic.getStartedGame(this.playerLogic.CreateOrUpdate(new Player(user.getId(), user.getUsername(), this.playerLogic.getGamesWon(user.getId()))));
-
-                if (startedGame != null) {
-                    Optional<GamePlayer> wonPlayer = startedGame.getPlayers().stream().filter(p -> p.getPlayer().getId() != user.getId()).findFirst();
-
-                    if (wonPlayer.isPresent()) {
-                        this.gameLogic.endGame(wonPlayer.get(), startedGame);
-                        template.convertAndSendToUser(wonPlayer.get().getPlayer().getFullName(), "/topic/game", new GameWonState());
-                    }
-                }
-            }
-        }
-    }*/
-
     @EventListener
     public void handleSessionDisconnectEvent(SessionDisconnectEvent event) {
         StompHeaderAccessor sha = StompHeaderAccessor.wrap(event.getMessage());

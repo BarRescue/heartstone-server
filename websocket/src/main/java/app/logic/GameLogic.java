@@ -1,7 +1,6 @@
 package app.logic;
 
 import app.entity.Game;
-import app.entity.GamePlayer;
 import app.entity.Player;
 import app.entity.enums.GameStatus;
 import app.service.GameService;
@@ -23,7 +22,7 @@ public class GameLogic {
         this.playerService = playerService;
     }
 
-    public void endGame(Player wonPlayer, Game game) {
+    void endGame(Player wonPlayer, Game game) {
         // Update Game
         game.setGameStatus(GameStatus.ENDED);
         this.gameService.createOrUpdate(game);

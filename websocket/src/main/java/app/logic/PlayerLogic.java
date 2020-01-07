@@ -23,7 +23,7 @@ public class PlayerLogic {
         this.tokenProvider = tokenProvider;
     }
 
-    public Player CreateOrUpdate(Player player) {
+    public Player createOrUpdate(Player player) {
         return this.playerService.createOrUpdate(player);
     }
 
@@ -31,8 +31,8 @@ public class PlayerLogic {
         return this.playerService.findByID(id);
     }
 
-    public Authentication getAuthOnToken(String JWT) {
-        String token = this.tokenProvider.resolveToken("Bearer " + JWT);
+    public Authentication getAuthOnToken(String jwt) {
+        String token = this.tokenProvider.resolveToken("Bearer " + jwt);
 
         if(token != null && this.tokenProvider.validateToken(token)) {
             return this.tokenProvider.getAuthentication(token);

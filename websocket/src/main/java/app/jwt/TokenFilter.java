@@ -35,10 +35,6 @@ public class TokenFilter extends OncePerRequestFilter {
             }
         }
 
-        if(token == null) {
-            token = tokenProvider.resolveToken(request.getHeader("Authorization"));
-        }
-
         if (token != null && tokenProvider.validateToken(token)) {
             Authentication auth = tokenProvider.getAuthentication(token);
 
