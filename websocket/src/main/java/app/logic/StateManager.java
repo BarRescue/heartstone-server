@@ -35,8 +35,8 @@ public class StateManager {
         }
     }
 
-    public Player getEnemyPlayer() {
-        return this.players.stream().filter(p -> p.getId().equals(this.currentPlayer.getId())).findFirst().orElse(null);
+    Player getEnemyPlayer() {
+        return this.players.stream().filter(p -> !p.getId().equals(this.currentPlayer.getId())).findFirst().orElse(null);
     }
 
     private void resetPlayerCards(Player player) {

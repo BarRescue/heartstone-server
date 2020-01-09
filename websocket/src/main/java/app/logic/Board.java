@@ -36,11 +36,16 @@ public class Board {
     @JsonIgnore
     private GameLogic gameLogic;
 
-    public Board(StateManager stateManager, String message, PlayerLogic playerLogic, GameLogic gameLogic) {
+    public Board(StateManager stateManager, PlayerLogic playerLogic, GameLogic gameLogic) {
         this.stateManager = stateManager;
-        this.message = message;
+        this.message = "It's " + stateManager.getCurrentPlayer().getFullName() + "'s turn.";
         this.playerLogic = playerLogic;
         this.gameLogic = gameLogic;
+    }
+
+    public void handleNextTurn() {
+        this.stateManager.getNextPlayer();
+        this.message = "It's " + this.stateManager.getCurrentPlayer().getFullName() + "'s turn.";
     }
 
     public boolean handleTakeCard() {
@@ -90,6 +95,8 @@ public class Board {
 
             playerCard.setHasAttacked(true);
 
+            this.message = playerCard.getName() + " attacked " + enemyPlayer.getFullName();
+
             // Check if enemy player is dead
             checkIfPlayerIsDead(enemyPlayer, currentPlayer, game);
 
@@ -102,6 +109,8 @@ public class Board {
 
             playerCard.setHasAttacked(true);
 
+            this.message = playerCard.getName() + " attacked " + enemyCard.getName();
+
             // Check if anything is dead
             checkIfCardIsDead(playerCard, currentPlayer);
             checkIfCardIsDead(enemyCard, enemyPlayer);
@@ -110,6 +119,7 @@ public class Board {
             return true;
         }
 
+        this.privateMessage = "You already have attacked with card: " + playerCard.getName();
         return false;
     }
 

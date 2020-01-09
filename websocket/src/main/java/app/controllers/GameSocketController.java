@@ -53,6 +53,9 @@ public class GameSocketController {
         String token = Objects.requireNonNull(headerAccessor.getSessionAttributes()).get("JWT").toString();
         Game foundGame = this.gameLogic.findById(UUID.fromString(id)).orElseThrow(() -> new NotFoundException("Game not found"));
 
+        // Reset private message
+        resetPrivateMessage(foundGame);
+
         Authentication auth = this.playerLogic.getAuthOnToken(token);
         Player player = this.getPlayerByAuth(auth, foundGame);
 
@@ -85,7 +88,7 @@ public class GameSocketController {
             players.forEach(Player::prepareForGame);
             Collections.shuffle(players);
 
-            games.put(foundGame.getId(), new GameState(new Board(new StateManager(players), "Welcome to the game!", playerLogic, gameLogic)));
+            games.put(foundGame.getId(), new GameState(new Board(new StateManager(players), playerLogic, gameLogic)));
         }
 
         Optional<Player> gamePlayer = games.get(foundGame.getId()).getBoard().getStateManager().getPlayers().stream().filter(p -> p.getId().equals(player.getId())).findFirst();
@@ -124,7 +127,7 @@ public class GameSocketController {
             return;
         }
 
-        games.get(foundGame.getId()).getBoard().getStateManager().getNextPlayer();
+        games.get(foundGame.getId()).getBoard().handleNextTurn();
 
         for(Player p : games.get(foundGame.getId()).getBoard().getStateManager().getPlayers()) {
             this.sendResponse(p.getFullName(), games.get(foundGame.getId()));
@@ -213,5 +216,11 @@ public class GameSocketController {
 
     private PrivateGameState getPrivateGameState(Player player) {
         return new PrivateGameState(player.getDeck(), player.getHand());
+    }
+
+    private void resetPrivateMessage(Game game) {
+        if(games.containsKey(game.getId())) {
+            games.get(game.getId()).getBoard().setPrivateMessage("");
+        }
     }
 }

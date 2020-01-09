@@ -64,7 +64,7 @@ public class PlayerLogic {
         if(enemyCard.getHealth() >= playerCard.getHealth()) {
             // Calculate any leftovers to attack player himself
             int deflectHealth = enemyCard.getHealth() - playerCard.getHealth();
-            int attackHealth = enemyCard.getHealth() - playerCard.getDamage();
+            int attackHealth = playerCard.getDamage() - enemyCard.getHealth();
 
             // Deflect and attack cards
             playerCard.attack(enemyCard.getHealth());
