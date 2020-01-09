@@ -10,9 +10,6 @@ import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Optional;
-import java.util.UUID;
-
 public class Board {
     @JsonUnwrapped
     @Getter
@@ -98,7 +95,7 @@ public class Board {
             this.message = playerCard.getName() + " attacked " + enemyPlayer.getFullName();
 
             // Check if enemy player is dead
-            checkIfPlayerIsDead(enemyPlayer, currentPlayer, game);
+            isPlayerDead(enemyPlayer, currentPlayer, game);
 
             return true;
         }
@@ -112,9 +109,9 @@ public class Board {
             this.message = playerCard.getName() + " attacked " + enemyCard.getName();
 
             // Check if anything is dead
-            checkIfCardIsDead(playerCard, currentPlayer);
-            checkIfCardIsDead(enemyCard, enemyPlayer);
-            checkIfPlayerIsDead(currentPlayer, enemyPlayer, game);
+            isCardDead(playerCard, currentPlayer);
+            isCardDead(enemyCard, enemyPlayer);
+            isPlayerDead(currentPlayer, enemyPlayer, game);
 
             return true;
         }
@@ -123,14 +120,14 @@ public class Board {
         return false;
     }
 
-    private void checkIfCardIsDead(Card card, Player player) {
+    private void isCardDead(Card card, Player player) {
         if(card.isDead()) {
             player.getField().removeCard(card);
             discardPile.addCard(player, card);
         }
     }
 
-    private void checkIfPlayerIsDead(Player playerToCheck, Player oppositePlayer, Game game) {
+    private void isPlayerDead(Player playerToCheck, Player oppositePlayer, Game game) {
         if(playerToCheck.isDead()) {
             message = playerToCheck.getFullName() + " is dead, " + oppositePlayer.getFullName() + " won the game";
             gameLogic.endGame(oppositePlayer, game);

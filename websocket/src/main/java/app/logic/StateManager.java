@@ -3,10 +3,7 @@ package app.logic;
 import app.entity.Player;
 import app.models.interfaces.Card;
 import lombok.Getter;
-import lombok.Setter;
-
 import java.util.List;
-import java.util.Optional;
 
 @Getter
 public class StateManager {

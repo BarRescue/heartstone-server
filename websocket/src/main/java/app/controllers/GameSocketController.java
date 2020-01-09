@@ -9,6 +9,7 @@ import app.models.User;
 import app.models.payloads.Action;
 import app.models.responses.DefaultResponse;
 import app.models.states.GameState;
+import app.models.states.GameWonState;
 import app.models.states.PrivateGameState;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -167,6 +168,12 @@ public class GameSocketController {
             if(!games.get(foundGame.getId()).getBoard().handleAttack(action, foundGame)) {
                 this.sendResponse(player.getFullName(), this.getPrivateMessage(foundGame));
                 return;
+            }
+
+            if(foundGame.getGameStatus() == GameStatus.ENDED) {
+                for (Player p : games.get(foundGame.getId()).getBoard().getStateManager().getPlayers()) {
+                    this.sendResponse(p.getFullName(), new GameWonState(games.get(foundGame.getId()).getBoard().getStateManager().getCurrentPlayer()));
+                }
             }
 
             this.sendResponse(gamePlayer.get().getFullName(), getPrivateMessage(foundGame));
