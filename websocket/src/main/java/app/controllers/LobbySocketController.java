@@ -6,6 +6,7 @@ import app.entity.Player;
 import app.jwt.TokenProvider;
 import app.logic.*;
 import app.models.User;
+import app.models.enums.ActionType;
 import app.models.payloads.Action;
 import app.models.states.GameStartState;
 import app.models.states.SearchingState;
@@ -59,7 +60,7 @@ public class LobbySocketController{
                 // Create or get player
                 Player player = this.playerLogic.createOrUpdate(new Player(user.getId(), user.getUsername(), this.playerLogic.getGamesWon(user.getId())));
 
-                if(action.getActionType().equals("search_game")) {
+                if(action.getActionType().equals(ActionType.SEARCH_GAME)) {
                     this.joinOrStartGame(player);
                 }
             }

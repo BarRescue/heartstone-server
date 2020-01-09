@@ -36,7 +36,7 @@ public class Board {
     @JsonIgnore
     private GameLogic gameLogic;
 
-    public Board(StateManager stateManager, PlayerLogic playerLogic, GameLogic gameLogic) {
+    Board(StateManager stateManager, PlayerLogic playerLogic, GameLogic gameLogic) {
         this.stateManager = stateManager;
         this.message = "It's " + stateManager.getCurrentPlayer().getFullName() + "'s turn.";
         this.playerLogic = playerLogic;
