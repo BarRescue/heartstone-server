@@ -9,13 +9,13 @@ import java.util.List;
 import java.util.Optional;
 
 @Getter
-public class PlayerManager {
+public class StateManager {
     @Getter
     private List<Player> players;
 
     private Player currentPlayer;
 
-    public PlayerManager(List<Player> players) {
+    public StateManager(List<Player> players) {
         this.players = players;
         this.currentPlayer = players.get(0);
     }
@@ -33,6 +33,10 @@ public class PlayerManager {
             this.currentPlayer = players.get(1);
             this.addManaToPlayer(players.get(0));
         }
+    }
+
+    public Player getEnemyPlayer() {
+        return this.players.stream().filter(p -> p.getId().equals(this.currentPlayer.getId())).findFirst().orElse(null);
     }
 
     private void resetPlayerCards(Player player) {

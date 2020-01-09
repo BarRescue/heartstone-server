@@ -26,7 +26,7 @@ public class Monster implements Card {
     private String path;
     private boolean hasAttacked = false;
 
-    public Monster(MonsterType monsterType) {
+    Monster(MonsterType monsterType) {
         this.id = UUID.randomUUID();
         this.rarity = monsterType.getRarity();
         this.name = monsterType.getName();
@@ -38,18 +38,19 @@ public class Monster implements Card {
         new File("resources/images/" + monsterType.getName() + ".jpg");
     }
 
-    @Override
     public boolean isDead() {
         return this.health <= 0;
     }
 
-    @Override
     public void setHasAttacked(boolean status) {
         this.hasAttacked = status;
     }
 
-    @Override
     public boolean getHasAttacked() {
         return this.hasAttacked;
+    }
+
+    public void attack(int damage) {
+        this.health = this.health - damage;
     }
 }

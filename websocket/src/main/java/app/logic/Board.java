@@ -9,20 +9,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import lombok.Getter;
 import lombok.Setter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import java.util.Optional;
 import java.util.UUID;
 
 public class Board {
-    Logger logger = LoggerFactory.getLogger(Board.class);
-
     @JsonUnwrapped
     @Getter
-    private PlayerManager playerManager;
-
-    //@JsonIgnore
-    //private ActionManager actionManager;
+    private StateManager stateManager;
 
     @Getter
     private DiscardPile discardPile = new DiscardPile();
@@ -36,39 +30,41 @@ public class Board {
     @Setter
     private String privateMessage;
 
-    public Board(PlayerManager playerManager, String message) {
-        this.playerManager = playerManager;
-        //this.actionManager = new ActionManager(this);
+    @JsonIgnore
+    private PlayerLogic playerLogic;
+
+    @JsonIgnore
+    private GameLogic gameLogic;
+
+    public Board(StateManager stateManager, String message, PlayerLogic playerLogic, GameLogic gameLogic) {
+        this.stateManager = stateManager;
         this.message = message;
+        this.playerLogic = playerLogic;
+        this.gameLogic = gameLogic;
     }
 
     public boolean handleTakeCard() {
-        Player currentPlayer = playerManager.getCurrentPlayer();
+        Player currentPlayer = stateManager.getCurrentPlayer();
 
-        if(currentPlayer.getHand().amountOfCards() != 10) {
-            currentPlayer.takeCard();
-        } else {
-            privateMessage = "You already have 10 cards in your hand, therefore you cant take another card.";
+        // Check if play already has 10 cards in hand
+        if(currentPlayer.getHand().hasMaxCards()) {
+            privateMessage = "You already have 10 cards in your hand!";
             return false;
         }
 
+        playerLogic.takeCard(currentPlayer);
         return true;
     }
 
     public boolean handlePlayCard(Action action) {
-        UUID cardId = action.getCardsFromPayload();
-        Optional<Card> card = playerManager.getCurrentPlayer().getHand().getCards().stream()
-                .filter(c -> c.getId().equals(cardId)).findFirst();
+        Player currentPlayer = stateManager.getCurrentPlayer();
+        Card card = currentPlayer.getHand().findCardById(action.getCardsFromPayload());
 
-        if(playerManager.getCurrentPlayer().getMana() >= card.get().getMana()) {
-            if(playerManager.getCurrentPlayer().getHand().getCards().stream().anyMatch(c -> c.getName().equals(card.get().getName())) && playerManager.getCurrentPlayer().getField().getCards().size() != 5) {
-                Optional<Card> playedCard = playerManager.getCurrentPlayer().getHand().getCards().stream().filter(c -> c.getName().equals(card.get().getName())).findFirst();
-
-                if(playedCard.isPresent()) {
-                    playerManager.getCurrentPlayer().setMana(playerManager.getCurrentPlayer().getMana() - playedCard.get().getMana());
-                    playerManager.getCurrentPlayer().getHand().playCard(playedCard.get());
-                    playerManager.getCurrentPlayer().getField().addCard(playedCard.get());
-                }
+        // Check if Card is found and if player has enough mana
+        if(card != null && currentPlayer.hasEnoughMana(card.getMana())) {
+            // Check if card exists in hand and if field already has 5 cards
+            if(!currentPlayer.getField().hasMaxCards()) {
+                playerLogic.playCard(currentPlayer, card);
             } else {
                 privateMessage = "You already have 5 cards on the field, play them first.";
                 return false;
@@ -81,68 +77,53 @@ public class Board {
         return true;
     }
 
-    public boolean handleAttack(Action action, Game game, GameLogic gameLogic) {
-        UUID playerPayload = action.getCardsFromPayload();
-        UUID enemyPayload = action.getEnemyCardsFromPayload();
+    public boolean handleAttack(Action action, Game game) {
+        Player currentPlayer = stateManager.getCurrentPlayer();
+        Player enemyPlayer = stateManager.getEnemyPlayer();
 
-        Optional<Player> enemyPlayer = playerManager.getPlayers().stream()
-                .filter(player -> !player.getId().equals(playerManager.getCurrentPlayer().getId())).findFirst();
+        Card playerCard = currentPlayer.getField().findCardById(action.getCardsFromPayload());
+        Card enemyCard = enemyPlayer.getField().findCardById(action.getEnemyCardsFromPayload());
 
-        Optional<Game> currentGame = gameLogic.findById(game.getId());
+        // Attack on player
+        if(enemyPlayer.getField().getCards().isEmpty() && !playerCard.getHasAttacked()) {
+            playerLogic.attackPlayer(enemyPlayer, playerCard.getDamage());
 
-        Optional<Card> playerCard = playerManager.getCurrentPlayer().getField().getCards().stream()
-                .filter(c -> c.getId().equals(playerPayload)).findFirst();
+            playerCard.setHasAttacked(true);
 
-        Optional<Card> enemyCard = enemyPlayer.get().getField().getCards().stream()
-                .filter(c -> c.getId().equals(enemyPayload)).findFirst();
+            // Check if enemy player is dead
+            checkIfPlayerIsDead(enemyPlayer, currentPlayer, game);
 
-        if(!enemyCard.isPresent() && playerCard.isPresent() && enemyPlayer.get().getField().getCards().isEmpty() && !playerCard.get().getHasAttacked()) {
-            enemyPlayer.get().setHp(enemyPlayer.get().getHp() - playerCard.get().getDamage());
-            playerCard.get().setHasAttacked(true);
-
-            if(enemyPlayer.get().isDead() && currentGame.isPresent()) {
-                gameLogic.endGame(playerManager.getCurrentPlayer(), currentGame.get());
-            }
+            return true;
         }
 
-        if(enemyCard.isPresent() && playerCard.isPresent() && currentGame.isPresent() && !playerCard.get().getHasAttacked()) {
-            if(enemyCard.get().getHealth() >= playerCard.get().getHealth()) {
-                int leftHealth = enemyCard.get().getHealth() - playerCard.get().getHealth();
+        // Attack on card
+        if(!enemyPlayer.getField().getCards().isEmpty() && !playerCard.getHasAttacked()) {
+            playerLogic.attackCard(enemyPlayer, currentPlayer, playerCard, enemyCard);
 
-                playerCard.get().setHealth(playerCard.get().getHealth() - enemyCard.get().getHealth());
-                enemyCard.get().setHealth(enemyCard.get().getHealth() - playerCard.get().getDamage());
+            playerCard.setHasAttacked(true);
 
-                playerCard.get().setHasAttacked(true);
+            // Check if anything is dead
+            checkIfCardIsDead(playerCard, currentPlayer);
+            checkIfCardIsDead(enemyCard, enemyPlayer);
+            checkIfPlayerIsDead(currentPlayer, enemyPlayer, game);
 
-                if(playerCard.get().isDead()) {
-                    playerManager.getCurrentPlayer().getField().removeCard(playerCard.get());
-                    discardPile.addCard(playerManager.getCurrentPlayer(), playerCard.get());
-                }
-
-                if(enemyCard.get().isDead()) {
-                    enemyPlayer.get().getField().removeCard(enemyCard.get());
-                    discardPile.addCard(enemyPlayer.get(), enemyCard.get());
-                }
-
-                if(leftHealth > 0) {
-                    playerManager.getCurrentPlayer().setHp(playerManager.getCurrentPlayer().getHp() - leftHealth);
-
-                    if(playerManager.getCurrentPlayer().getHp() <= 0) {
-                        gameLogic.endGame(enemyPlayer.get(), currentGame.get());
-                    }
-                }
-            } else {
-                enemyCard.get().setHealth(enemyCard.get().getHealth() - playerCard.get().getDamage());
-                playerCard.get().setHealth(playerCard.get().getHealth() - enemyCard.get().getHealth());
-                playerCard.get().setHasAttacked(true);
-
-                if(enemyCard.get().isDead()) {
-                    enemyPlayer.get().getField().removeCard(enemyCard.get());
-                    discardPile.addCard(enemyPlayer.get(), enemyCard.get());
-                }
-            }
+            return true;
         }
 
-        return true;
+        return false;
+    }
+
+    private void checkIfCardIsDead(Card card, Player player) {
+        if(card.isDead()) {
+            player.getField().removeCard(card);
+            discardPile.addCard(player, card);
+        }
+    }
+
+    private void checkIfPlayerIsDead(Player playerToCheck, Player oppositePlayer, Game game) {
+        if(playerToCheck.isDead()) {
+            message = playerToCheck.getFullName() + " is dead, " + oppositePlayer.getFullName() + " won the game";
+            gameLogic.endGame(oppositePlayer, game);
+        }
     }
 }

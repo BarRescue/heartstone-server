@@ -85,10 +85,10 @@ public class GameSocketController {
             players.forEach(Player::prepareForGame);
             Collections.shuffle(players);
 
-            games.put(foundGame.getId(), new GameState(new Board(new PlayerManager(players), "Welcome to the game!")));
+            games.put(foundGame.getId(), new GameState(new Board(new StateManager(players), "Welcome to the game!", playerLogic, gameLogic)));
         }
 
-        Optional<Player> gamePlayer = games.get(foundGame.getId()).getBoard().getPlayerManager().getPlayers().stream().filter(p -> p.getId().equals(player.getId())).findFirst();
+        Optional<Player> gamePlayer = games.get(foundGame.getId()).getBoard().getStateManager().getPlayers().stream().filter(p -> p.getId().equals(player.getId())).findFirst();
 
         if(gamePlayer.isPresent()) {
             this.sendResponse(gamePlayer.get().getFullName(), games.get(foundGame.getId()));
@@ -97,7 +97,7 @@ public class GameSocketController {
     }
 
     private void handleTakeCard(Game foundGame, Player player) {
-        Optional<Player> gamePlayer = games.get(foundGame.getId()).getBoard().getPlayerManager().getPlayers().stream().filter(p -> p.getId().equals(player.getId())).findFirst();
+        Optional<Player> gamePlayer = games.get(foundGame.getId()).getBoard().getStateManager().getPlayers().stream().filter(p -> p.getId().equals(player.getId())).findFirst();
 
         if(this.isNotPlayerTurn(foundGame, player)) {
             return;
@@ -112,7 +112,7 @@ public class GameSocketController {
             this.sendResponse(gamePlayer.get().getFullName(), this.getPrivateMessage(foundGame));
             this.sendResponse(gamePlayer.get().getFullName(), this.getPrivateGameState(gamePlayer.get()));
 
-            for(Player p : games.get(foundGame.getId()).getBoard().getPlayerManager().getPlayers()) {
+            for(Player p : games.get(foundGame.getId()).getBoard().getStateManager().getPlayers()) {
                 this.sendResponse(p.getFullName(), games.get(foundGame.getId()));
             }
         }
@@ -124,15 +124,15 @@ public class GameSocketController {
             return;
         }
 
-        games.get(foundGame.getId()).getBoard().getPlayerManager().getNextPlayer();
+        games.get(foundGame.getId()).getBoard().getStateManager().getNextPlayer();
 
-        for(Player p : games.get(foundGame.getId()).getBoard().getPlayerManager().getPlayers()) {
+        for(Player p : games.get(foundGame.getId()).getBoard().getStateManager().getPlayers()) {
             this.sendResponse(p.getFullName(), games.get(foundGame.getId()));
         }
     }
 
     private void handlePlayCard(Action action, Game foundGame, Player player) {
-        Optional<Player> gamePlayer = games.get(foundGame.getId()).getBoard().getPlayerManager().getPlayers().stream().filter(p -> p.getId().equals(player.getId())).findFirst();
+        Optional<Player> gamePlayer = games.get(foundGame.getId()).getBoard().getStateManager().getPlayers().stream().filter(p -> p.getId().equals(player.getId())).findFirst();
 
         if(this.isNotPlayerTurn(foundGame, player)) {
             return;
@@ -147,28 +147,28 @@ public class GameSocketController {
             this.sendResponse(gamePlayer.get().getFullName(), this.getPrivateMessage(foundGame));
             this.sendResponse(gamePlayer.get().getFullName(), this.getPrivateGameState(gamePlayer.get()));
 
-            for(Player p : games.get(foundGame.getId()).getBoard().getPlayerManager().getPlayers()) {
+            for(Player p : games.get(foundGame.getId()).getBoard().getStateManager().getPlayers()) {
                 this.sendResponse(p.getFullName(), games.get(foundGame.getId()));
             }
         }
     }
 
     private void handleAttack(Action action, Game foundGame, Player player) {
-        Optional<Player> gamePlayer = games.get(foundGame.getId()).getBoard().getPlayerManager().getPlayers().stream().filter(p -> p.getId().equals(player.getId())).findFirst();
+        Optional<Player> gamePlayer = games.get(foundGame.getId()).getBoard().getStateManager().getPlayers().stream().filter(p -> p.getId().equals(player.getId())).findFirst();
 
         if(this.isNotPlayerTurn(foundGame, player)) {
             return;
         }
 
         if(gamePlayer.isPresent()) {
-            if(!games.get(foundGame.getId()).getBoard().handleAttack(action, foundGame, this.gameLogic)) {
+            if(!games.get(foundGame.getId()).getBoard().handleAttack(action, foundGame)) {
                 this.sendResponse(player.getFullName(), this.getPrivateMessage(foundGame));
                 return;
             }
 
             this.sendResponse(gamePlayer.get().getFullName(), getPrivateMessage(foundGame));
 
-            for (Player p : games.get(foundGame.getId()).getBoard().getPlayerManager().getPlayers()) {
+            for (Player p : games.get(foundGame.getId()).getBoard().getStateManager().getPlayers()) {
                 this.sendResponse(p.getFullName(), games.get(foundGame.getId()));
             }
         }
@@ -191,7 +191,7 @@ public class GameSocketController {
     }
 
     private boolean isNotPlayerTurn(Game foundGame, Player player) {
-        if (!games.get(foundGame.getId()).getBoard().getPlayerManager().isPlayerTurn(player)) {
+        if (!games.get(foundGame.getId()).getBoard().getStateManager().isPlayerTurn(player)) {
             this.sendResponse(player.getFullName(), new DefaultResponse("It's not your turn"));
             return true;
         }

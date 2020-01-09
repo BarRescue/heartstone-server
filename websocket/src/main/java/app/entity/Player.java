@@ -103,10 +103,8 @@ public class Player implements Serializable {
         this.amountOfCardsInHand = this.hand.amountOfCards();
     }
 
-    public void takeCard() {
-        Card cardDrawn = getDeck().takeCard();
-        getHand().addCard(cardDrawn);
-        setAmountOfCardsInHand(getHand().amountOfCards());
+    public boolean hasEnoughMana(int mana) {
+        return this.mana >= mana;
     }
 
     public boolean isDead() {

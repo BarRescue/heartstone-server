@@ -1,15 +1,17 @@
 package app.models;
 
 import app.models.interfaces.Card;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class Hand {
+    @JsonIgnore
+    private static final int MAX_CARDS = 10;
+
     @Getter
     @Setter
     private List<Card> cards = new ArrayList<>();
@@ -25,5 +27,13 @@ public class Hand {
     @JsonProperty
     public int amountOfCards() {
         return this.cards.size();
+    }
+
+    public boolean hasMaxCards() {
+        return this.cards.size() == MAX_CARDS;
+    }
+
+    public Card findCardById(UUID id) {
+        return this.cards.stream().filter(c -> c.getId().equals(id)).findFirst().orElse(null);
     }
 }
