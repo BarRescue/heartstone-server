@@ -12,8 +12,6 @@ import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -21,6 +19,8 @@ import java.util.UUID;
 public class Action {
     Logger logger = LoggerFactory.getLogger(Action.class);
     private static ObjectMapper mapper = new ObjectMapper();
+    private static final String ENEMY_CARD = "enemyCard";
+    private static final String PLAYER_CARD = "card";
 
     @Getter
     @JsonProperty("actionType")
@@ -35,9 +35,9 @@ public class Action {
         UUID id = null;
 
         try {
-            id = UUID.fromString(payload.get("card").textValue());
+            id = UUID.fromString(payload.get(PLAYER_CARD).textValue());
         } catch(IllegalArgumentException e) {
-            logger.error("Card {} not found with error: {}", payload.get("card").textValue(), e);
+            logger.error("Card {} not found with error: {}", payload.get(PLAYER_CARD).textValue(), e);
         }
 
         return id;
@@ -48,9 +48,11 @@ public class Action {
         UUID id = null;
 
         try {
-            id = UUID.fromString(payload.get("enemyCard").textValue());
+            if(payload.get(ENEMY_CARD).asBoolean()) {
+                id = UUID.fromString(payload.get(ENEMY_CARD).textValue());
+            }
         } catch(IllegalArgumentException e) {
-            logger.error("Card {} not found with error: {}", payload.get("card").textValue(), e);
+            logger.error("Card {} not found with error: {}", payload.get(ENEMY_CARD).textValue(), e);
         }
 
         return id;
