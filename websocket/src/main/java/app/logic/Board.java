@@ -114,7 +114,7 @@ public class Board {
             // Check if anything is dead
             checkIfCardIsDead(playerCard, currentPlayer);
             checkIfCardIsDead(enemyCard, enemyPlayer);
-            checkIfPlayerIsDead(currentPlayer, enemyPlayer, game);
+            checkIfPlayerIsDead(enemyPlayer, currentPlayer, game);
 
             return true;
         }
