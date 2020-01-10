@@ -1,6 +1,7 @@
 package app.models.payloads;
 
 import app.models.Monster;
+import app.models.enums.ActionType;
 import app.models.enums.MonsterType;
 import app.models.interfaces.Card;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -24,7 +25,7 @@ public class Action {
 
     @Getter
     @JsonProperty("actionType")
-    private String actionType;
+    private ActionType actionType;
 
     @Getter
     @JsonProperty

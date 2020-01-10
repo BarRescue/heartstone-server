@@ -10,6 +10,9 @@ import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Optional;
+import java.util.UUID;
+
 public class Board {
     @JsonUnwrapped
     @Getter
@@ -33,7 +36,7 @@ public class Board {
     @JsonIgnore
     private GameLogic gameLogic;
 
-    public Board(StateManager stateManager, PlayerLogic playerLogic, GameLogic gameLogic) {
+    Board(StateManager stateManager, PlayerLogic playerLogic, GameLogic gameLogic) {
         this.stateManager = stateManager;
         this.message = "It's " + stateManager.getCurrentPlayer().getFullName() + "'s turn.";
         this.playerLogic = playerLogic;
@@ -95,7 +98,7 @@ public class Board {
             this.message = playerCard.getName() + " attacked " + enemyPlayer.getFullName();
 
             // Check if enemy player is dead
-            isPlayerDead(enemyPlayer, currentPlayer, game);
+            checkIfPlayerIsDead(enemyPlayer, currentPlayer, game);
 
             return true;
         }
@@ -109,9 +112,9 @@ public class Board {
             this.message = playerCard.getName() + " attacked " + enemyCard.getName();
 
             // Check if anything is dead
-            isCardDead(playerCard, currentPlayer);
-            isCardDead(enemyCard, enemyPlayer);
-            isPlayerDead(currentPlayer, enemyPlayer, game);
+            checkIfCardIsDead(playerCard, currentPlayer);
+            checkIfCardIsDead(enemyCard, enemyPlayer);
+            checkIfPlayerIsDead(enemyPlayer, currentPlayer, game);
 
             return true;
         }
@@ -120,14 +123,14 @@ public class Board {
         return false;
     }
 
-    private void isCardDead(Card card, Player player) {
+    private void checkIfCardIsDead(Card card, Player player) {
         if(card.isDead()) {
             player.getField().removeCard(card);
             discardPile.addCard(player, card);
         }
     }
 
-    private void isPlayerDead(Player playerToCheck, Player oppositePlayer, Game game) {
+    private void checkIfPlayerIsDead(Player playerToCheck, Player oppositePlayer, Game game) {
         if(playerToCheck.isDead()) {
             message = playerToCheck.getFullName() + " is dead, " + oppositePlayer.getFullName() + " won the game";
             gameLogic.endGame(oppositePlayer, game);

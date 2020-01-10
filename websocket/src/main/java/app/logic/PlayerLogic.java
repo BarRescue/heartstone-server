@@ -53,6 +53,8 @@ public class PlayerLogic {
     void playCard(Player player, Card card) {
         player.setMana(player.getMana() - card.getMana());
         player.getHand().playCard(card);
+
+        card.setHasAttacked(true);
         player.getField().addCard(card);
     }
 
@@ -61,25 +63,24 @@ public class PlayerLogic {
     }
 
     void attackCard(Player enemyPlayer, Player currentPlayer, Card playerCard, Card enemyCard) {
-        if(enemyCard.getHealth() >= playerCard.getHealth()) {
-            // Calculate any leftovers to attack player himself
-            int deflectHealth = enemyCard.getHealth() - playerCard.getHealth();
-            int attackHealth = playerCard.getDamage() - enemyCard.getHealth();
+        // Init Health and Damage
+        final int enemyHealth = enemyCard.getHealth();
+        final int playerDamage = playerCard.getDamage();
 
-            // Deflect and attack cards
-            playerCard.attack(enemyCard.getHealth());
-            enemyCard.attack(playerCard.getDamage());
+        // Calculate any leftovers to attack player himself
+        int deflectHealth = enemyCard.getHealth() - playerCard.getHealth();
+        int attackHealth = playerCard.getDamage() - enemyCard.getHealth();
 
-            if(attackHealth > 0) {
-                attackPlayer(enemyPlayer, attackHealth);
-            }
+        // Deflect and attack cards
+        enemyCard.attack(playerDamage);
+        playerCard.attack(enemyHealth);
 
-            if(deflectHealth > 0) {
-                attackPlayer(currentPlayer, deflectHealth);
-            }
-        } else {
-            enemyCard.attack(playerCard.getDamage());
-            playerCard.attack(enemyCard.getHealth());
+        if(attackHealth > 0) {
+            attackPlayer(enemyPlayer, attackHealth);
+        }
+
+        if(deflectHealth > 0) {
+            attackPlayer(currentPlayer, deflectHealth);
         }
     }
 }
