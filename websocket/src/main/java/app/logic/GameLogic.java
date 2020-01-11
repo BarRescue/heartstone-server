@@ -22,19 +22,19 @@ public class GameLogic {
         this.playerService = playerService;
     }
 
-    void endGame(Player wonPlayer, Game game) {
-        // Update Game
-        game.setGameStatus(GameStatus.ENDED);
-        this.gameService.createOrUpdate(game);
+    public void endGame(Player wonPlayer, Game game) {
+        if(wonPlayer.getHp() > 0) {
+            // Update Game
+            game.setGameStatus(GameStatus.ENDED);
+            this.gameService.createOrUpdate(game);
 
-        // Update Player
-        wonPlayer.setGamesWon(wonPlayer.getGamesWon() + 1);
-        this.playerService.createOrUpdate(wonPlayer);
+            // Update Player
+            wonPlayer.setGamesWon(wonPlayer.getGamesWon() + 1);
+            this.playerService.createOrUpdate(wonPlayer);
+        }
     }
 
     public Optional<Game> findById(UUID id) {
         return this.gameService.findGameByID(id);
     }
-
-
 }

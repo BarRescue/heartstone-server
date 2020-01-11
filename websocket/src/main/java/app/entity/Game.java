@@ -37,6 +37,11 @@ public class Game implements Serializable {
 
     public Game() {}
 
+    public Game(UUID id) {
+        this.id = id;
+        this.gameStatus = GameStatus.WAITING;
+    }
+
     public Game(Player player) {
         this.gameStatus = GameStatus.WAITING;
         this.players.add(new GamePlayer(this, player));
@@ -44,15 +49,6 @@ public class Game implements Serializable {
 
     public void addPlayer(Player player) {
         this.players.add(new GamePlayer(this, player));
-    }
-
-    public void removePlayer(Player player) {
-        for (GamePlayer gamePlayer : this.players)
-            if (gamePlayer.getPlayer().getId().equals(player.getId())) {
-                gamePlayer.getPlayer().getGames().remove(gamePlayer);
-                gamePlayer.setPlayer(null);
-                gamePlayer.setGame(null);
-            }
     }
 
     public boolean containsPlayer(Player player) {

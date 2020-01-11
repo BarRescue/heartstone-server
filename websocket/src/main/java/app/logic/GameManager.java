@@ -3,10 +3,7 @@ package app.logic;
 import app.entity.Game;
 import app.entity.Player;
 import app.models.states.GameState;
-import lombok.Getter;
-import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
