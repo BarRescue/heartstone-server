@@ -22,6 +22,11 @@ public class PlayerLogic {
         this.tokenProvider = tokenProvider;
     }
 
+    // Initializer for tests
+    public PlayerLogic(PlayerService playerService) {
+        this.playerService = playerService;
+    }
+
     public Player createOrUpdate(Player player) {
         return this.playerService.createOrUpdate(player);
     }

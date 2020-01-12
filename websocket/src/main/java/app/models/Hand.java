@@ -34,6 +34,10 @@ public class Hand {
     }
 
     public Card findCardById(UUID id) {
-        return this.cards.stream().filter(c -> c.getId().equals(id)).findFirst().orElse(null);
+        if(id != null) {
+            return this.cards.stream().filter(c -> c.getId().equals(id)).findFirst().orElse(null);
+        }
+
+        return null;
     }
 }

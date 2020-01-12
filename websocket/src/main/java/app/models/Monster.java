@@ -26,7 +26,7 @@ public class Monster implements Card {
     private String path;
     private boolean hasAttacked = false;
 
-    Monster(MonsterType monsterType) {
+    public Monster(MonsterType monsterType) {
         this.id = UUID.randomUUID();
         this.rarity = monsterType.getRarity();
         this.name = monsterType.getName();

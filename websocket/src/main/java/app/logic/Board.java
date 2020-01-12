@@ -36,7 +36,7 @@ public class Board {
     @JsonIgnore
     private GameLogic gameLogic;
 
-    Board(StateManager stateManager, PlayerLogic playerLogic, GameLogic gameLogic) {
+    public Board(StateManager stateManager, PlayerLogic playerLogic, GameLogic gameLogic) {
         this.stateManager = stateManager;
         this.message = "It's " + stateManager.getCurrentPlayer().getFullName() + "'s turn.";
         this.playerLogic = playerLogic;
@@ -54,6 +54,11 @@ public class Board {
         // Check if play already has 10 cards in hand
         if(currentPlayer.getHand().hasMaxCards()) {
             privateMessage = "You already have 10 cards in your hand!";
+            return false;
+        }
+
+        if(currentPlayer.getDeck().getCards().isEmpty()) {
+            privateMessage = "You dont have cards in your deck anymore!";
             return false;
         }
 
@@ -104,7 +109,7 @@ public class Board {
         }
 
         // Attack on card
-        if(!enemyPlayer.getField().getCards().isEmpty() && !playerCard.getHasAttacked()) {
+        if(!enemyPlayer.getField().getCards().isEmpty() && !playerCard.getHasAttacked() && enemyCard != null) {
             playerLogic.attackCard(enemyPlayer, currentPlayer, playerCard, enemyCard);
 
             playerCard.setHasAttacked(true);

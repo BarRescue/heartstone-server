@@ -24,10 +24,12 @@ public class Action {
     private static final String PLAYER_CARD = "card";
 
     @Getter
+    @Setter
     @JsonProperty("actionType")
     private ActionType actionType;
 
     @Getter
+    @Setter
     @JsonProperty
     private JsonNode payload;
 
@@ -49,9 +51,7 @@ public class Action {
         UUID id = null;
 
         try {
-            if(payload.get(ENEMY_CARD).asBoolean()) {
-                id = UUID.fromString(payload.get(ENEMY_CARD).textValue());
-            }
+            id = UUID.fromString(payload.get(ENEMY_CARD).textValue());
         } catch(IllegalArgumentException e) {
             logger.error("Card {} not found with error: {}", payload.get(ENEMY_CARD).textValue(), e);
         }
