@@ -20,7 +20,7 @@ public class PrepareGameHandler extends DefaultHandler {
     public void prepare(Game game, Player player, PlayerLogic playerLogic, GameLogic gameLogic) {
         if(!gameManager.gameExists(game)) {
             List<Player> players = game.getPlayers().stream().map(GamePlayer::getPlayer).collect(Collectors.toList());
-
+            players.forEach(Player::prepareForGame);
             Collections.shuffle(players);
 
             gameManager.addGame(game, players, playerLogic, gameLogic);

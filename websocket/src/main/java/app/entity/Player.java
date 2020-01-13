@@ -91,16 +91,22 @@ public class Player implements Serializable {
         this.gamesWon = gamesWon;
     }
 
-    public void prepareForGame() {
-        this.hp = 30;
-        this.mana = 1;
-        this.hand = new Hand();
-        this.deck = new Deck();
-        this.field = new Field();
+    public boolean prepareForGame() {
+        if(deck == null && hand == null && field == null) {
+            this.hp = 30;
+            this.mana = 1;
+            this.hand = new Hand();
+            this.deck = new Deck();
+            this.field = new Field();
 
-        this.deck.prepare();
+            this.deck.prepare();
 
-        this.amountOfCardsInHand = this.hand.amountOfCards();
+            this.amountOfCardsInHand = this.hand.amountOfCards();
+
+            return true;
+        }
+
+        return false;
     }
 
     public boolean hasEnoughMana(int mana) {

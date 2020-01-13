@@ -28,6 +28,7 @@ class BoardTakeCardUT {
     private PlayerLogic playerLogic;
     private GameLogic gameLogic;
     private Board board;
+    private Player playerOne;
 
     @InjectMocks
     private PlayerService playerService;
@@ -54,6 +55,7 @@ class BoardTakeCardUT {
         }
 
         this.board = new Board(new StateManager(players), playerLogic, gameLogic);
+        this.playerOne = this.board.getStateManager().getPlayers().get(0);
     }
 
     @Test
@@ -62,7 +64,7 @@ class BoardTakeCardUT {
     }
 
     @Test
-    void takeCardWithoutCards() {
+    void takeCardNoCardInDeck() {
         for(int i = 0; i <= 30; i++) {
             this.board.getStateManager().getCurrentPlayer().getDeck().takeCard();
         }
@@ -77,5 +79,12 @@ class BoardTakeCardUT {
         }
 
         assertFalse(this.board.handleTakeCard());
+    }
+
+    @Test
+    void takeCardIfPlayersNotTurn() {
+        this.board.handleNextTurn();
+
+        assertFalse(this.board.getStateManager().isPlayerTurn(this.playerOne));
     }
 }

@@ -15,15 +15,19 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.lenient;
 
 @ExtendWith(MockitoExtension.class)
 class PlayerPrepareUT {
     private LobbyLogic lobbyLogic;
+
+    private List<Player> players;
 
     @InjectMocks
     private PlayerService playerService;
@@ -42,27 +46,22 @@ class PlayerPrepareUT {
         Player playerOne = new Player(UUID.randomUUID(), "Rens Manders", 0);
         Player playerTwo = new Player(UUID.randomUUID(), "Piet Manders", 0);
 
-        // Player
-        lenient().when(playerService.findByID(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))).thenReturn(Optional.of(playerOne));
-        lenient().when(playerService.findByID(UUID.fromString("123e4567-e89b-42d3-a456-556642440001"))).thenReturn(Optional.of(playerTwo));
-        lenient().when(playerService.createOrUpdate(Mockito.any(Player.class))).thenAnswer(i -> i.getArguments()[0]);
-
-        Game game = new Game(UUID.randomUUID());
-
-        // Game
-        lenient().when(gameService.createOrUpdate(Mockito.any(Game.class))).thenReturn(game);
+        this.players = new ArrayList<>();
+        players.add(playerOne);
+        players.add(playerTwo);
     }
 
     @Test
     void playerPrepareOnGameStart() {
-        Optional<Player> playerOne = playerService.findByID(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"));
-        Optional<Player> playerTwo = playerService.findByID(UUID.fromString("123e4567-e89b-42d3-a456-556642440001"));
-
-        Game game = lobbyLogic.joinOrCreateGame(playerOne.get());
-        game = lobbyLogic.joinOrCreateGame(playerTwo.get());
-
-        lobbyLogic.startGame(game);
-
-        assertEquals(30, playerOne.get().getHp());
+        assertTrue(players.get(0).prepareForGame());
     }
+
+    @Test
+    void playerPrepareOnGameStartTwice() {
+        players.get(0).prepareForGame();
+
+        assertFalse(players.get(0).prepareForGame());
+    }
+
+
 }

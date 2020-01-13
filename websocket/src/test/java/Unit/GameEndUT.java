@@ -3,8 +3,7 @@ package Unit;
 import app.entity.Game;
 import app.entity.Player;
 import app.entity.enums.GameStatus;
-import app.logic.GameLogic;
-import app.logic.LobbyLogic;
+import app.logic.*;
 import app.models.states.GameState;
 import app.repository.GameRepository;
 import app.repository.PlayerRepository;
@@ -18,6 +17,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -28,6 +29,10 @@ import static org.junit.jupiter.api.Assertions.*;
 class GameEndUT {
     private LobbyLogic lobbyLogic;
     private GameLogic gameLogic;
+    private PlayerLogic playerLogic;
+
+    private Board board;
+    private Game game;
 
     @InjectMocks
     private PlayerService playerService;
@@ -43,50 +48,63 @@ class GameEndUT {
     void setUp() {
         this.lobbyLogic = new LobbyLogic(gameService);
         this.gameLogic = new GameLogic(gameService, playerService);
+        this.playerLogic = new PlayerLogic(playerService);
 
-        Player playerOne = new Player(UUID.randomUUID(), "Rens Manders", 0);
-        Player playerTwo = new Player(UUID.randomUUID(), "Piet Manders", 0);
+        List<Player> players = new ArrayList<>();
 
-        // Player
-        lenient().when(playerService.findByID(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))).thenReturn(Optional.of(playerOne));
-        lenient().when(playerService.findByID(UUID.fromString("123e4567-e89b-42d3-a456-556642440001"))).thenReturn(Optional.of(playerTwo));
-        lenient().when(playerService.createOrUpdate(Mockito.any(Player.class))).thenAnswer(i -> i.getArguments()[0]);
+        players.add(new Player(UUID.randomUUID(), "Rens Manders", 0));
+        players.add(new Player(UUID.randomUUID(), "Piet Manders", 0));
 
-        Game game = new Game(UUID.randomUUID());
+        for(Player p : players) {
+            p.prepareForGame();
+        }
 
-        // Game
-        lenient().when(gameService.createOrUpdate(Mockito.any(Game.class))).thenReturn(game);
+        this.game = createGameEntity(players);
+        this.board = new Board(new StateManager(players), playerLogic, gameLogic);
+
+        lobbyLogic.startGame(game);
     }
 
     @Test
     void endGameWonPlayerDoesNotHaveHp() {
-        Optional<Player> playerOne = playerService.findByID(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"));
-        Optional<Player> playerTwo = playerService.findByID(UUID.fromString("123e4567-e89b-42d3-a456-556642440001"));
-
-        Game game = lobbyLogic.joinOrCreateGame(playerOne.get());
-        game = lobbyLogic.joinOrCreateGame(playerTwo.get());
-
-        lobbyLogic.startGame(game);
-
-        playerOne.get().setHp(0);
-        gameLogic.endGame(playerOne.get(), game);
+        this.board.getStateManager().getCurrentPlayer().setHp(0);
+        gameLogic.endGame(this.board.getStateManager().getCurrentPlayer(), game);
 
         assertEquals(GameStatus.STARTED, game.getGameStatus());
     }
 
     @Test
     void endGameWonPlayerHasHp() {
-        Optional<Player> playerOne = playerService.findByID(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"));
-        Optional<Player> playerTwo = playerService.findByID(UUID.fromString("123e4567-e89b-42d3-a456-556642440001"));
-
-        Game game = lobbyLogic.joinOrCreateGame(playerOne.get());
-        game = lobbyLogic.joinOrCreateGame(playerTwo.get());
-
-        lobbyLogic.startGame(game);
-
-        playerTwo.get().setHp(0);
-        gameLogic.endGame(playerOne.get(), game);
+        this.board.getStateManager().getPlayers().get(1).setHp(0);
+        gameLogic.endGame(this.board.getStateManager().getCurrentPlayer(), game);
 
         assertEquals(GameStatus.ENDED, game.getGameStatus());
+    }
+
+    @Test
+    void endGameIfPlayerIsDead() {
+        this.board.getStateManager().getCurrentPlayer().setHp(0);
+
+        gameLogic.endGame(this.board.getStateManager().getCurrentPlayer(), game);
+
+        assertEquals(GameStatus.STARTED, game.getGameStatus());
+    }
+
+    @Test
+    void endGameIsPlayerIsNotDead() {
+        this.board.getStateManager().getPlayers().get(1).setHp(0);
+
+        gameLogic.endGame(this.board.getStateManager().getCurrentPlayer(), game);
+
+        assertEquals(GameStatus.ENDED, game.getGameStatus());
+    }
+
+    private Game createGameEntity(List<Player> players) {
+        Game game = new Game(UUID.randomUUID());
+        game.addPlayer(players.get(0));
+        game.addPlayer(players.get(1));
+        game.setGameStatus(GameStatus.STARTED);
+
+        return game;
     }
 }

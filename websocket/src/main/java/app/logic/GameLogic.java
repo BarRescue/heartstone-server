@@ -23,7 +23,7 @@ public class GameLogic {
     }
 
     public void endGame(Player wonPlayer, Game game) {
-        if(wonPlayer.getHp() > 0) {
+        if(wonPlayer.getHp() > 0 && !wonPlayer.isDead()) {
             // Update Game
             game.setGameStatus(GameStatus.ENDED);
             this.gameService.createOrUpdate(game);

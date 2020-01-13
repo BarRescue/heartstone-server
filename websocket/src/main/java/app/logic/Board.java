@@ -116,10 +116,13 @@ public class Board {
 
             this.message = playerCard.getName() + " attacked " + enemyCard.getName();
 
-            // Check if anything is dead
+            // Check if any card is dead
             checkIfCardIsDead(playerCard, currentPlayer);
             checkIfCardIsDead(enemyCard, enemyPlayer);
+
+            // Check if any player is dead
             checkIfPlayerIsDead(enemyPlayer, currentPlayer, game);
+            checkIfPlayerIsDead(currentPlayer, enemyPlayer, game);
 
             return true;
         }

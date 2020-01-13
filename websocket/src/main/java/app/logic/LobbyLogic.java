@@ -25,7 +25,7 @@ public class LobbyLogic {
     public Game joinOrCreateGame(Player player) {
         Game foundGame = this.getWaitingGame(player);
 
-        if(!foundGame.containsPlayer(player)) {
+        if(!foundGame.containsPlayer(player) && foundGame.getPlayers().size() <= 1) {
             foundGame.addPlayer(player);
             this.updateGame(foundGame);
 
@@ -42,8 +42,6 @@ public class LobbyLogic {
     public boolean startGame(Game game) {
         if(game.getPlayers().size() == 2 && game.getGameStatus() == GameStatus.WAITING) {
             game.setGameStatus(GameStatus.STARTED);
-            List<Player> players = game.getPlayers().stream().map(GamePlayer::getPlayer).collect(Collectors.toList());
-            players.forEach(Player::prepareForGame);
 
             this.updateGame(game);
             return true;

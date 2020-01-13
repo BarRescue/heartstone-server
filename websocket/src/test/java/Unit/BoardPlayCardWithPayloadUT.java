@@ -4,6 +4,8 @@ import app.logic.Board;
 import app.logic.GameLogic;
 import app.logic.PlayerLogic;
 import app.logic.StateManager;
+import app.models.Monster;
+import app.models.enums.MonsterType;
 import app.models.payloads.Action;
 import app.repository.GameRepository;
 import app.repository.PlayerRepository;
@@ -29,10 +31,14 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-class BoardPlayCardUT {
+class BoardPlayCardWithPayloadUT {
     private PlayerLogic playerLogic;
     private GameLogic gameLogic;
     private Board board;
+    private ObjectMapper mapper;
+
+    private Player playerOne;
+    private Action action;
 
     @InjectMocks
     private PlayerService playerService;
@@ -45,7 +51,7 @@ class BoardPlayCardUT {
     private GameRepository gameRepository;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws JsonProcessingException {
         this.playerLogic = new PlayerLogic(playerService);
         this.gameLogic = new GameLogic(gameService, playerService);
 
@@ -59,51 +65,39 @@ class BoardPlayCardUT {
         }
 
         this.board = new Board(new StateManager(players), playerLogic, gameLogic);
+        this.board.handleTakeCard();
+
+        this.mapper = new ObjectMapper();
+        this.playerOne = this.board.getStateManager().getPlayers().get(0);
+
+        ObjectReader reader = mapper.reader();
+        String jsonString = "{\"card\" : \""+ this.playerOne.getHand().getCards().get(0).getId().toString() +"\"}";
+        JsonNode node = reader.readTree(jsonString);
+
+        action = new Action();
+        action.setPayload(node);
     }
 
     @Test
     void playCardWithPayload() {
-        Player playerOne = this.board.getStateManager().getPlayers().get(0);
-        playerOne.setMana(999);
-        this.board.handleTakeCard();
+        this.playerOne.setMana(999);
 
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectReader reader = mapper.reader();
-        String jsonString = "{\"card\" : \""+ playerOne.getHand().getCards().get(0).getId().toString() +"\"}";
-
-        try {
-            JsonNode node = reader.readTree(jsonString);
-
-            Action action = new Action();
-            action.setPayload(node);
-
-            assertTrue(this.board.handlePlayCard(action));
-
-        } catch(JsonProcessingException e) {
-            e.printStackTrace();
-        }
+        assertTrue(this.board.handlePlayCard(action));
     }
 
     @Test
-    void playCardWithoutPayload() {
-        Player playerOne = this.board.getStateManager().getPlayers().get(0);
-        playerOne.setMana(999);
-        this.board.handleTakeCard();
+    void playCardNoMana() {
+        this.playerOne.setMana(0);
 
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectReader reader = mapper.reader();
-        String jsonString = "{\"card\" : \"\"}";
+        assertFalse(this.board.handlePlayCard(action));
+    }
 
-        try {
-            JsonNode node = reader.readTree(jsonString);
-
-            Action action = new Action();
-            action.setPayload(node);
-
-            assertFalse(this.board.handlePlayCard(action));
-
-        } catch(JsonProcessingException e) {
-            e.printStackTrace();
+    @Test
+    void playCardMaxCardsOnField() {
+        for(int i = 0; i < 5; i++) {
+            this.playerOne.getField().addCard(new Monster(MonsterType.ACIDIC_SWAMP_OOZE));
         }
+
+        assertFalse(this.board.handlePlayCard(action));
     }
 }

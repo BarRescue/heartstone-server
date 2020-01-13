@@ -54,7 +54,7 @@ class PlayerJoinGameUT {
     }
 
     @Test
-    void JoinGameExists() {
+    void createGameIfNoGameExists() {
         Optional<Player> playerOne = playerService.findByID(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"));
 
         Game game = lobbyLogic.joinOrCreateGame(playerOne.get());
@@ -63,7 +63,7 @@ class PlayerJoinGameUT {
     }
 
     @Test
-    void JoinGameNonExists() {
+    void JoinGameIfGameExists() {
         Optional<Player> playerOne = playerService.findByID(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"));
         Optional<Player> playerTwo = playerService.findByID(UUID.fromString("123e4567-e89b-42d3-a456-556642440001"));
 
