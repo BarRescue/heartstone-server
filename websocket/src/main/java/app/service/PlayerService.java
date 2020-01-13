@@ -5,6 +5,7 @@ import app.repository.PlayerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -28,5 +29,9 @@ public class PlayerService {
     public int getGamesWonById(UUID id) {
         Optional<Player> player = this.playerRepository.findById(id);
         return player.map(Player::getGamesWon).orElse(0);
+    }
+
+    public List<Player> getAllPlayers() {
+        return this.playerRepository.findAll();
     }
 }

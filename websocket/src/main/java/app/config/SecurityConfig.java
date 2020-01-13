@@ -37,6 +37,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/lobby").permitAll()
                 .antMatchers("/game/**").permitAll()
                 .antMatchers("/images/**").permitAll()
+                .antMatchers("/highscore/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .apply(new TokenConfigurer(tokenProvider));

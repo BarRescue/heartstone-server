@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -29,6 +30,10 @@ public class PlayerLogic {
 
     public Player createOrUpdate(Player player) {
         return this.playerService.createOrUpdate(player);
+    }
+
+    public List<Player> getAllPlayers() {
+        return this.playerService.getAllPlayers();
     }
 
     public Optional<Player> findById(UUID id) {
