@@ -14,7 +14,6 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
-import static org.springframework.http.ResponseEntity.badRequest;
 import static org.springframework.http.ResponseEntity.ok;
 
 @RestController
@@ -28,7 +27,7 @@ public class PlayerController {
     }
 
     @CrossOrigin(origins = "http://localhost:4200")
-    @GetMapping("/highscore")
+    @GetMapping("/players")
     public ResponseEntity highscore(HttpServletRequest request) {
         try {
             List<PlayerHighscoreDTO> dto = new ArrayList<>();
